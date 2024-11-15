@@ -1,3 +1,7 @@
-# Your Game
+# Leap 'O Fate
 
-CODE YOU WRITE FOR THIS ASSIGNMENT MAY NOT BE POSTED PUBLICLY. 
+# 11/15
+
+- Updated absolute coordinate in graphics.asm, sprites.asm, and sprites.inc
+- 
+

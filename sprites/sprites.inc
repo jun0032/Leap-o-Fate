@@ -2,6 +2,11 @@ if !def(SPRITES_RGBINC)
 def SPRITES_RGBINC equ 1
 include "inc/utils.inc"
 
+; absolute coordinate
+RSSET _RAM + 8 ; $C008
+def ABSOLUTE_COORDINATE_X           rb 1
+def ABSOLUTE_COORDINATE_Y           rb 1
+
 ; sprite addresses
 def SPRITE_0_ADDRESS equ            (_OAMRAM)
 def SPRITE_1_ADDRESS equ            (_OAMRAM + sizeof_OAM_ATTRS)

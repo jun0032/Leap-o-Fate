@@ -9,6 +9,7 @@ section "vblank_interrupt", rom0[$0040]
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 section "graphics", rom0
+
 init_graphics:
     ; init the palettes
     ld a, DEFAULT_PALETTE
@@ -36,10 +37,6 @@ init_graphics:
     ld [rSCX], a
     ld [rSCY], a
 
-    ; set absolute coordinate to 0,0
-    ld [ABSOLUTE_COORDINATE_X], a
-    ld [ABSOLUTE_COORDINATE_Y], a
-
     ret
 
 update_graphics:
@@ -60,6 +57,7 @@ scroll_horizontal:
 
     ; scroll left
     AddBetter [rSCX], -WINDOW_SCROLL_SPEED
+    AddBetter [ABSOLUTE_COORDINATE_X], -WINDOW_SCROLL_SPEED
     AddBetter [SPRITE_0_ADDRESS + OAMA_X], WINDOW_SCROLL_SPEED
     AddBetter [SPRITE_1_ADDRESS + OAMA_X], WINDOW_SCROLL_SPEED
     AddBetter [SPRITE_2_ADDRESS + OAMA_X], WINDOW_SCROLL_SPEED
@@ -79,6 +77,7 @@ scroll_horizontal:
 
     ; scroll right
     AddBetter [rSCX], WINDOW_SCROLL_SPEED
+    AddBetter [ABSOLUTE_COORDINATE_X], WINDOW_SCROLL_SPEED
     AddBetter [SPRITE_0_ADDRESS + OAMA_X], -WINDOW_SCROLL_SPEED
     AddBetter [SPRITE_1_ADDRESS + OAMA_X], -WINDOW_SCROLL_SPEED
     AddBetter [SPRITE_2_ADDRESS + OAMA_X], -WINDOW_SCROLL_SPEED
@@ -99,6 +98,7 @@ scroll_vertical:
 
     ; scroll up
     AddBetter [rSCY], -WINDOW_SCROLL_SPEED
+    AddBetter [ABSOLUTE_COORDINATE_Y], -WINDOW_SCROLL_SPEED
     AddBetter [SPRITE_0_ADDRESS + OAMA_Y], WINDOW_SCROLL_SPEED
     AddBetter [SPRITE_1_ADDRESS + OAMA_Y], WINDOW_SCROLL_SPEED
     AddBetter [SPRITE_2_ADDRESS + OAMA_Y], WINDOW_SCROLL_SPEED
@@ -118,6 +118,7 @@ scroll_vertical:
 
     ; scroll_down
     AddBetter [rSCY], WINDOW_SCROLL_SPEED
+    AddBetter [ABSOLUTE_COORDINATE_Y], WINDOW_SCROLL_SPEED
     AddBetter [SPRITE_0_ADDRESS + OAMA_Y], -WINDOW_SCROLL_SPEED
     AddBetter [SPRITE_1_ADDRESS + OAMA_Y], -WINDOW_SCROLL_SPEED
     AddBetter [SPRITE_2_ADDRESS + OAMA_Y], -WINDOW_SCROLL_SPEED

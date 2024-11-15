@@ -2,10 +2,6 @@ if !def(GRAPHICS_RGBINC)
 def GRAPHICS_RGBINC equ 1
 include "inc/hardware.inc"
 
-RSSET _RAM + 8 ; $C008
-def ABSOLUTE_COORDINATE_X           rb 1
-def ABSOLUTE_COORDINATE_Y           rb 1
-
 def TILE_SIDE_LENGTH                equ (8)
 def TILES_COUNT                     equ (384)
 def BYTES_PER_TILE                  equ (16)
@@ -99,5 +95,5 @@ macro PrintText
         cp a, NULL
         jp nz, .print_next_character\@
 endm
-`   
+   
 endc

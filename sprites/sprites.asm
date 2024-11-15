@@ -38,6 +38,9 @@ init_sprites_pos:
 
     Copy [SPRITE_2_ADDRESS + OAMA_X], SPRITE_2_INIT_X
     Copy [SPRITE_2_ADDRESS + OAMA_Y], SPRITE_2_INIT_Y
+
+    Copy [ABSOLUTE_COORDINATE_X], SPRITE_0_INIT_X
+    Copy [ABSOLUTE_COORDINATE_Y], SPRITE_0_INIT_Y
     ret
 
 update_sprites:
