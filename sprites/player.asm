@@ -7,6 +7,8 @@ include "sprites/sprites.inc"
 section "player", rom0
 
 update_player:
+    call update_player_current_tile
+
     ; check if RIGHT is pressed
     ld a, [JOYPAD_CURRENT_ADDRESS]
     and PADF_RIGHT
@@ -177,6 +179,39 @@ b_button:
     call lose_heart
 
     .b_not_pressed
+    ret
+
+update_player_current_tile:
+    ; Divide absolute x coordinate by 8 to get player tilemap column
+    ld a, [ABSOLUTE_COORDINATE_X]
+    srl a
+    srl a
+    srl a
+    ld b, a
+
+    ; Divide absolute x coordinate by 8, multiply by 32 and add column to get tilemap index
+    ; ld a, [ABSOLUTE_COORDINATE_Y]
+    ; ld h, 0
+    ; ld l, a
+
+    ; srl hl
+    ; sla hl
+    ; sla hl
+    ; sla hl
+
+    ; ; make a hl
+    ; add a, b
+
+    ; ; subtract by 65 to correct for the tilemap pixel indexing top left corner starting at (8,16)
+    ; sub a, 65
+
+    ; ld [TOP_LEFT_PLAYER_TILE], a
+    ; cp a, $6D
+    ; jp nz, .done
+
+    ; call lose_heart
+
+    ; .done
     ret
 
 ; NOTE: moving up and down will not be in the actual game
