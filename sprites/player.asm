@@ -2,6 +2,8 @@ include "game/game.inc"
 include "joypad/joypad.inc"
 include "sprites/sprites.inc"
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 section "player", rom0
 
 update_player:
@@ -60,7 +62,7 @@ update_player:
 move_right:
     ; move sprite right if went from no hold to hold
     AddBetter [SPRITE_0_ADDRESS + OAMA_X], SPRITE_0_SPDX
-    call player_animation
+    call player_move_animation
 
     ld a, [SPRITE_0_ADDRESS + OAMA_FLAGS]
     bit OAMB_XFLIP, a
@@ -75,7 +77,7 @@ move_right:
 move_left:
     ; move sprite left if went from no hold to hold
     AddBetter [SPRITE_0_ADDRESS + OAMA_X], -SPRITE_0_SPDX
-    call player_animation
+    call player_move_animation
 
     ; flip sprite in x-direction if sprite is facing opposite direction
     ld a, [SPRITE_0_ADDRESS + OAMA_FLAGS]
@@ -140,7 +142,11 @@ jump:
     .done
     ret
 
-player_animation:
+player_move_animation:
+    ld a, [GAME_COUNTER]
+    and SPRITE_0_FREQ
+    jp nz, .done
+
     ld a, [SPRITE_0_ADDRESS + OAMA_TILEID]
     cp a, SPRITE_0_DEFAULT_ANIMATION
     jp z, .move_animate
@@ -182,7 +188,7 @@ check_up:
 
     ; move sprite up if went from no hold to hold
     AddBetter [SPRITE_0_ADDRESS + OAMA_Y], -SPRITE_0_SPDX
-    call player_animation
+    call player_move_animation
 
     .up_not_pressed
     ret
@@ -195,7 +201,7 @@ check_down:
 
     ; move sprite down if went from no hold to hold
     AddBetter [SPRITE_0_ADDRESS + OAMA_Y], SPRITE_0_SPDX
-    call player_animation
+    call player_move_animation
 
     .down_not_pressed
     ret

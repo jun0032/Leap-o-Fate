@@ -28,6 +28,7 @@ def SPRITE_2_END_X                  equ (184)
 def SPRITE_0_DEFAULT_ANIMATION      equ (8)
 def SPRITE_0_MOVE_ANIMATION         equ (10)
 def SPRITE_0_SPDX                   equ (1)
+def SPRITE_0_FREQ                   equ (3)
 
 def GRAVITY                         equ (1)
 def DMG_CD                          equ (2)
