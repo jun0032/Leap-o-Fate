@@ -17,6 +17,8 @@ def SPRITE_2_ADDRESS equ            (SPRITE_1_ADDRESS + sizeof_OAM_ATTRS)
 def TOP_LEFT_CORNER_X               equ (8)
 def TOP_LEFT_CORNER_Y               equ (16)
 
+def TILE_IN_ROW_FACTOR              equ (5)
+
 ; key positions for sprites
 def SPRITE_0_INIT_X                 equ (24)
 def SPRITE_0_INIT_Y                 equ (40)
@@ -36,7 +38,7 @@ def SPRITE_0_SPDX                   equ (1)
 def SPRITE_0_FREQ                   equ (3)
 
 def GRAVITY                         equ (1)
-def DMG_CD                          equ (2)
+def DMG_CD                          equ ($FF)
 def JUMP_VERTICAL_VELOCITY          equ (-6)
 def JUMP_COOLDOWN                   equ ($15)
 
@@ -91,7 +93,7 @@ macro PlayerTileCorner
     ; prepare hl for 16-bit multiplication and set counter (b)
     ld h, 0
     ld l, a
-    ld b, 5
+    ld b, TILE_IN_ROW_FACTOR
 
     ; multiply absolute x coordinate by 32
     .multiply_by_two\@

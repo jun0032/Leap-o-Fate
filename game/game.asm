@@ -25,7 +25,6 @@ LEVEL_2_STRING_ADDRESS:
 init_game_states:
     Copy [GAME_COUNTER], 0
     Copy [GAME_STATE], $FF
-    Copy [HEART_COUNT], MAX_HEARTS
     ret
 
 check_start:
@@ -94,18 +93,15 @@ lose_heart:
     ld a, BLANK_TILE_INDEX
     ld [hl], a
 
-    ; decrement heart count 
+    ; decrement heart count and check if game is over
     ld a, [HEART_COUNT]
     dec a
-    ld [HEART_COUNT], a
-
-    ; check if game is over
-    cp a, 0
     jp nz, .not_game_over
 
     call game_over
 
     .not_game_over
+        ld [HEART_COUNT], a
     ret
 
 reset_hearts:
