@@ -128,5 +128,5 @@ export init_graphics, update_graphics
 
 section "graphics_data", rom0[GRAPHICS_DATA_ADDRESS_START]
 incbin "tiles/tileset.chr"
-incbin "tiles/background.tlm"
+incbin "tiles/level1.tlm"
 incbin "tiles/window.tlm"

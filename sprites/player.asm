@@ -198,6 +198,8 @@ update_player_current_tile:
 
     .take_damage
         call lose_heart
+        call lose_heart
+        call lose_heart
     .safe
     ret
 

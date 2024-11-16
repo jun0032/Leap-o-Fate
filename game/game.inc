@@ -27,7 +27,7 @@ def BLANK_TILE_INDEX              equ ($000F)
 def GAME_OVER_STRING_LOCATION     equ ($9DA5)
 def PRINT_BLANK_STRING_LOCATION   equ ($9DC5)
 def PLAY_AGAIN_STRING_LOCATION    equ ($9DE5)
-def LEVELS_STRING_LOCATION        equ ($9C26)
+def LEVELS_STRING_LOCATION        equ ($9C24)
 
 ; level 2
 def DOOR_1_X                      equ (136)

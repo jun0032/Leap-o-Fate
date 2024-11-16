@@ -17,10 +17,10 @@ PRINT_BLANK_STRING_ADDRESS:
     db "        \0"
 
 LEVEL_1_STRING_ADDRESS:
-    db "LEVEL 1\0"
+    db "  LEVEL 1  \0"
 
 LEVEL_2_STRING_ADDRESS:
-    db "LEVEL 2\0"
+    db "  LEVEL 2  \0"
 
 init_game_states:
     Copy [GAME_COUNTER], 0
@@ -72,6 +72,7 @@ start:
     call init_sprites_pos
 
     ; print level 1 on bottom window
+    call reset_hearts
     PrintText LEVEL_1_STRING_ADDRESS, LEVELS_STRING_LOCATION
     
     .continue_pulling
@@ -171,7 +172,6 @@ check_next_level:
     ret
 
 next_level:
-    
     ; "hide" enemy sprites
     ld a, [SPRITE_1_ADDRESS + OAMA_FLAGS] 
     set OAMB_PAL1, a
