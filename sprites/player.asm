@@ -64,6 +64,7 @@ update_player:
 move_right:
     ; move sprite right if went from no hold to hold
     AddBetter [SPRITE_0_ADDRESS + OAMA_X], SPRITE_0_SPDX
+    AddBetter [ABSOLUTE_COORDINATE_X], SPRITE_0_SPDX
     call player_move_animation
 
     ld a, [SPRITE_0_ADDRESS + OAMA_FLAGS]
@@ -79,6 +80,7 @@ move_right:
 move_left:
     ; move sprite left if went from no hold to hold
     AddBetter [SPRITE_0_ADDRESS + OAMA_X], -SPRITE_0_SPDX
+    AddBetter [ABSOLUTE_COORDINATE_X], -SPRITE_0_SPDX
     call player_move_animation
 
     ; flip sprite in x-direction if sprite is facing opposite direction
@@ -182,36 +184,21 @@ b_button:
     ret
 
 update_player_current_tile:
-    ; Divide absolute x coordinate by 8 to get player tilemap column
-    ld a, [ABSOLUTE_COORDINATE_X]
-    srl a
-    srl a
-    srl a
-    ld b, a
+    ; check top left corner of player
+    PlayerTileCorner 0, 0
+    CheckTileCollision $6D ; temp target 1st spike
+    jp z, .take_damage
 
-    ; Divide absolute x coordinate by 8, multiply by 32 and add column to get tilemap index
-    ; ld a, [ABSOLUTE_COORDINATE_Y]
-    ; ld h, 0
-    ; ld l, a
+    ; check bottom right corner of player
+    PlayerTileCorner 7, 7
+    CheckTileCollision $6D ; temp target 1st spike
+    jp z, .take_damage
 
-    ; srl hl
-    ; sla hl
-    ; sla hl
-    ; sla hl
+    jp .safe
 
-    ; ; make a hl
-    ; add a, b
-
-    ; ; subtract by 65 to correct for the tilemap pixel indexing top left corner starting at (8,16)
-    ; sub a, 65
-
-    ; ld [TOP_LEFT_PLAYER_TILE], a
-    ; cp a, $6D
-    ; jp nz, .done
-
-    ; call lose_heart
-
-    ; .done
+    .take_damage
+        call lose_heart
+    .safe
     ret
 
 ; NOTE: moving up and down will not be in the actual game
@@ -223,6 +210,7 @@ check_up:
 
     ; move sprite up if went from no hold to hold
     AddBetter [SPRITE_0_ADDRESS + OAMA_Y], -SPRITE_0_SPDX
+    AddBetter [ABSOLUTE_COORDINATE_Y], -SPRITE_0_SPDX
     call player_move_animation
 
     .up_not_pressed
@@ -236,6 +224,7 @@ check_down:
 
     ; move sprite down if went from no hold to hold
     AddBetter [SPRITE_0_ADDRESS + OAMA_Y], SPRITE_0_SPDX
+    AddBetter [ABSOLUTE_COORDINATE_Y], SPRITE_0_SPDX
     call player_move_animation
 
     .down_not_pressed

@@ -8,12 +8,14 @@ def ABSOLUTE_COORDINATE_X           rb 1
 def ABSOLUTE_COORDINATE_Y           rb 1
 def TOP_LEFT_PLAYER_TILE            rb 1
 
-def TILEMAP_PIXEL_OFFSET            equ (65)
-
 ; sprite addresses
 def SPRITE_0_ADDRESS equ            (_OAMRAM)
 def SPRITE_1_ADDRESS equ            (_OAMRAM + sizeof_OAM_ATTRS)
 def SPRITE_2_ADDRESS equ            (SPRITE_1_ADDRESS + sizeof_OAM_ATTRS)
+
+; tilemap top left corner
+def TOP_LEFT_CORNER_X               equ (8)
+def TOP_LEFT_CORNER_Y               equ (16)
 
 ; key positions for sprites
 def SPRITE_0_INIT_X                 equ (24)
@@ -65,6 +67,64 @@ macro InitOAM
         add hl, de
         dec c
         jr nz, .init_oam\@
+endm
+
+; 
+macro PlayerTileCorner
+    ; divide absolute x coordinate by 8 to get player tilemap column
+    ld a, [ABSOLUTE_COORDINATE_X]
+    add a, \1
+    sub a, TOP_LEFT_CORNER_X
+    srl a
+    srl a
+    srl a
+    ld c, a
+
+    ; divide absolute y coordinate by 8 to get player tilemap row
+    ld a, [ABSOLUTE_COORDINATE_Y]
+    add a, \2
+    sub a, TOP_LEFT_CORNER_Y
+    srl a
+    srl a
+    srl a
+
+    ; prepare hl for 16-bit multiplication and set counter (b)
+    ld h, 0
+    ld l, a
+    ld b, 5
+
+    ; multiply absolute x coordinate by 32
+    .multiply_by_two\@
+        sla h
+        sla l
+        jp nc, .dont_carry\@
+        inc h
+        
+        .dont_carry\@
+            dec b
+
+        jp nz, .multiply_by_two\@
+
+    ; add column to get tilemap index
+    add hl, bc
+endm
+
+macro CheckTileCollision
+    ld de, \1
+
+    ; check higher byte
+    ld a, h
+    cp a, d
+    jp nz, .safe\@
+
+    ; check lower byte
+    ld a, l
+    cp a, e
+    jp nz, .safe\@
+
+    ; set z flag
+    xor a
+    .safe\@
 endm
 
 endc
