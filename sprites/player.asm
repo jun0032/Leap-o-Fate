@@ -186,17 +186,7 @@ b_button:
 update_player_current_tile:
     ; check top left corner of player
     PlayerTileCorner 0, 0
-    ; CheckTileCollision $6D ; temp target 1st spike
-    ; jp z, .take_damage
-
-    ; check bottom right corner of player
-    ; PlayerTileCorner 7, 7
-    ; CheckTileCollision $6D ; temp target 1st spike
-    ; jp z, .take_damage
-
-    ; temp target 1st spike
-    ; Add $9800 + Index
-    AddBetter h, $98
+    
     ld a, [hl]
     cp a, $31 ; $31 is the spike tile index
     jp z, .take_damage
