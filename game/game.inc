@@ -20,6 +20,7 @@ def GAMEB_START_SCREEN            equ ($0000)
 ; hearts
 def MAX_HEARTS                    equ ($0003)
 def HEART_TILE_INDEX              equ ($0038)
+def BROKEN_HEART_TILE_INDEX       equ ($0039)
 def HEART_LOCATION_ADDRESS        equ ($9C21)
 def BLANK_TILE_INDEX              equ ($000F)
 

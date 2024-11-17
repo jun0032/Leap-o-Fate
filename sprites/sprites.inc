@@ -38,7 +38,7 @@ def SPRITE_0_SPDX                   equ (1)
 def SPRITE_0_FREQ                   equ (3)
 
 def GRAVITY                         equ (1)
-def DMG_CD                          equ ($FF)
+def DMG_CD                          equ (2)
 def JUMP_VERTICAL_VELOCITY          equ (-6)
 def JUMP_COOLDOWN                   equ ($15)
 
@@ -109,6 +109,11 @@ macro PlayerTileCorner
 
     ; add column to get tilemap index
     add hl, bc
+
+    ; add $9800 + index to get index address in VRAM to compare the tile index
+    ld a, h
+    add a, $98
+    ld h, a
 endm
 
 macro CheckTileCollision

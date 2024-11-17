@@ -7,6 +7,21 @@ include "sprites/sprites.inc"
 
 section "game", rom0
 
+GAME_OVER_STRING_ADDRESS:
+    db "GAME OVER!\0"
+
+PLAY_AGAIN_STRING_ADDRESS:
+    db "PLAY AGAIN\0"
+
+PRINT_BLANK_STRING_ADDRESS:
+    db "        \0"
+
+LEVEL_1_STRING_ADDRESS:
+    db "  LEVEL 1  \0"
+
+LEVEL_2_STRING_ADDRESS:
+    db "  LEVEL 2  \0"
+
 init_game_states:
     Copy [GAME_COUNTER], 0
     Copy [GAME_STATE], $FF
@@ -54,13 +69,11 @@ start:
 
     ; set initial sprite positions
     call init_sprites_pos
-    call reset_hearts
-    
-    ; load next level window
-    DisableLCD
-    UpdateTilemap NEXT_LEVEL_WINDOW, _SCRN1
-    EnableLCD
 
+    ; print level 1 on bottom window
+    call reset_hearts
+    PrintText LEVEL_1_STRING_ADDRESS, LEVELS_STRING_LOCATION
+    
     .continue_pulling
     ret
 
@@ -104,8 +117,7 @@ reset_hearts:
         jp nz, .print_heart
 
     ; reset hearts back to MAX_HEARTS
-    ld a, MAX_HEARTS
-    ld [HEART_COUNT], a
+    Copy [HEART_COUNT], MAX_HEARTS
     ret
 
 game_over:
@@ -117,22 +129,19 @@ game_over:
 
     ; re-initializes game
     call init_sprites
+    call reset_hearts
 
     ; set starting screen on
     ld a, [GAME_STATE]
     xor GAMEF_START_SCREEN
     ld [GAME_STATE], a
 
-    ; load game over window
-    DisableLCD
-    UpdateTilemap GAME_OVER_WINDOW, _SCRN1
-    EnableLCD
+    ; display message for game over
+    PrintText GAME_OVER_STRING_ADDRESS, GAME_OVER_STRING_LOCATION
+    PrintText PRINT_BLANK_STRING_ADDRESS, PRINT_BLANK_STRING_LOCATION
+    PrintText PLAY_AGAIN_STRING_ADDRESS, PLAY_AGAIN_STRING_LOCATION
 
     ret
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-; REWORK
 
 check_next_level:
     Copy b, [rSCX]
@@ -177,7 +186,7 @@ next_level:
     Copy [rSCY], LVL2_SCR_Y
 
     ; display message for next level in the middle of the window
-    ; PrintText LEVEL_2_STRING_ADDRESS, LEVELS_STRING_LOCATION
+    PrintText LEVEL_2_STRING_ADDRESS, LEVELS_STRING_LOCATION
     
     ret
 

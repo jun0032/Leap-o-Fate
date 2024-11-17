@@ -198,7 +198,7 @@ update_player_current_tile:
     ; Add $9800 + Index
     AddBetter h, $98
     ld a, [hl]
-    cp a, $31
+    cp a, $31 ; $31 is the spike tile index
     jp z, .take_damage
 
     jp .safe
