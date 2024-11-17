@@ -23,12 +23,11 @@ def HEART_TILE_INDEX              equ ($0038)
 def HEART_LOCATION_ADDRESS        equ ($9C21)
 def BLANK_TILE_INDEX              equ ($000F)
 
-; strings
-def GAME_OVER_STRING_LOCATION     equ ($9DA5)
-def PRINT_BLANK_STRING_LOCATION   equ ($9DC5)
-def PLAY_AGAIN_STRING_LOCATION    equ ($9DE5)
-def LEVELS_STRING_LOCATION        equ ($9C24)
+; level
+def TWO_TILE_INDEX                equ ($52)
+def LVL_NUM_LOCATION              equ ($9C32)
 
+; necessary anymore?
 ; level 2
 def DOOR_1_X                      equ (136)
 def DOOR_1_Y                      equ (184)
@@ -36,6 +35,5 @@ def LVL2_SCR_X                    equ (96)
 def LVL2_SCR_Y                    equ (136)
 def LVL2_INIT_X                   equ (152)
 def LVL2_INIT_Y                   equ (72)
-
 
 endc

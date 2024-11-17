@@ -45,11 +45,11 @@ main:
 
         call update_joypad
 
-        ; start game whenSTART is pressed
+        ; start game when START is pressed
         call check_start
         jp nz, .skip
 
-        ; update only when game is started
+        ; update only when game has started
         call update_graphics
         call update_sprites
         ; call check_next_level
