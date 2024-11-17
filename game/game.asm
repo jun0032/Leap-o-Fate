@@ -60,7 +60,8 @@ start:
     DisableLCD
     UpdateTilemap NEXT_LEVEL_WINDOW, _SCRN1
     EnableLCD
-
+    halt
+    
     .continue_pulling
     ret
 
