@@ -101,6 +101,7 @@ spike_collision:
 
     ; damage and reset damage cooldown
     call damage_player
+    Copy [DAMAGE_COOLDOWN], DMG_CD
     jp .not_spike
 
     .in_damage_cooldown
