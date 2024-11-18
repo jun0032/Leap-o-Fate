@@ -78,26 +78,39 @@ update_player_current_tile:
 
     ld a, [hl]
     ld [PLAYER_CURR_TILE], a
-    call collision
+    call spike_collision
 
     ret
 
-collision:
+spike_collision:
+    ; check if damage cooldown is off
+    ld a, [DAMAGE_COOLDOWN]
+    cp a, 0
+    jp nz, .in_damage_cooldown
+
+    ; check if the player's current tile is a spike
     ld a, [PLAYER_CURR_TILE]
-    cp a, $20 ; $20 is the first spike tile index
-    jp nc, .spike_check
 
-    jp .safe
+    ; check if the tile index is below the range of the spikes' tile index
+    cp a, TILEMAP_SPIKES_START
+    jp c, .not_spike
 
-    .spike_check
-        cp a, $28 ; tile after last spike tile
-        jp c, .take_damage
-        jp .safe
-    
-    .take_damage
-        call lose_heart
-    
-    .safe
+    ; check if the tile index is above the range of the spikes' tile index
+    cp a, TILEMAP_SPIKES_END + 1
+    jp nc, .not_spike
+
+    ; damage and reset damage cooldown
+    call damage_player
+    jp .not_spike
+
+    .in_damage_cooldown
+        dec a
+        ld [DAMAGE_COOLDOWN], a
+        ; ld a, [SPRITE_0_ADDRESS + OAMA_FLAGS]
+        ; xor OAMF_PAL1
+        ; ld [SPRITE_0_ADDRESS + OAMA_FLAGS], a
+
+    .not_spike
     ret
 
 move_right:
@@ -207,17 +220,12 @@ player_move_animation:
 ; will implement into collision for next project
 b_button:
     ; check if B_BUTTON is held
-    ld a, [JOYPAD_CURRENT_ADDRESS]
+    ld a, [JOYPAD_PRESSED_ADDRESS]
     and PADF_B
     jp nz, .b_not_pressed
 
-    ; damage cooldown
-    ld a, [GAME_COUNTER]
-    and DMG_CD
-    jp nz, .b_not_pressed
-
     ; lose heart when B_BUTTON is held
-    call lose_heart
+    call damage_player
 
     .b_not_pressed
     ret

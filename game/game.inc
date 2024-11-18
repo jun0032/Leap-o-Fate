@@ -6,6 +6,7 @@ rsset _RAM
 def GAME_COUNTER                  rb 1
 def GAME_STATE                    rb 1
 def HEART_COUNT                   rb 1
+def DAMAGE_COOLDOWN               rb 1
 
 def COUNTER_SPEED                 equ (%00000001)
 
@@ -23,6 +24,8 @@ def HEART_TILE_INDEX              equ ($0036)
 def BROKEN_HEART_TILE_INDEX       equ ($0037)
 def HEART_LOCATION_ADDRESS        equ ($9C21)
 def BLANK_TILE_INDEX              equ ($000F)
+
+def DMG_CD                        equ ($40)
 
 ; level
 def TWO_TILE_INDEX                equ ($52)

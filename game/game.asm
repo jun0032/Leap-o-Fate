@@ -10,6 +10,7 @@ section "game", rom0
 init_game_states:
     Copy [GAME_COUNTER], 0
     Copy [GAME_STATE], $FF
+    Copy [DAMAGE_COOLDOWN], 0
     ret
 
 check_start:
@@ -65,7 +66,7 @@ start:
     .continue_pulling
     ret
 
-lose_heart:
+damage_player:
     ; get location index of one tile left of heart and current heart count
     ld hl, HEART_LOCATION_ADDRESS
     dec hl
@@ -183,4 +184,4 @@ next_level:
     
     ret
 
-export init_game_states, check_start, lose_heart, check_next_level
+export init_game_states, check_start, damage_player, check_next_level

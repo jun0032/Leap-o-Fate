@@ -17,6 +17,9 @@ def SPRITE_2_ADDRESS equ            (SPRITE_1_ADDRESS + sizeof_OAM_ATTRS)
 def TOP_LEFT_CORNER_X               equ (8)
 def TOP_LEFT_CORNER_Y               equ (16)
 
+def TILEMAP_SPIKES_START            equ ($20)
+def TILEMAP_SPIKES_END              equ ($27)
+
 def TILE_IN_ROW_FACTOR              equ (5)
 
 ; key positions for sprites
@@ -38,7 +41,6 @@ def SPRITE_0_SPDX                   equ (1)
 def SPRITE_0_FREQ                   equ (3)
 
 def GRAVITY                         equ (1)
-def DMG_CD                          equ (2)
 def JUMP_VERTICAL_VELOCITY          equ (-6)
 def JUMP_COOLDOWN                   equ ($15)
 
@@ -114,24 +116,6 @@ macro PlayerTileCorner
     ld a, h
     add a, $98
     ld h, a
-endm
-
-macro CheckTileCollision
-    ld de, \1
-
-    ; check higher byte
-    ld a, h
-    cp a, d
-    jp nz, .safe\@
-
-    ; check lower byte
-    ld a, l
-    cp a, e
-    jp nz, .safe\@
-
-    ; set z flag
-    xor a
-    .safe\@
 endm
 
 endc
