@@ -55,7 +55,7 @@ start:
 
     ; set initial sprite positions
     call init_sprites_pos
-    call reset_hearts
+    Copy [HEART_COUNT], MAX_HEARTS
     
     ; load next level window
     DisableLCD
@@ -91,23 +91,6 @@ damage_player:
 
     .not_game_over
         ld [HEART_COUNT], a
-    ret
-
-reset_hearts:
-    ; get number of hearts to print, where to start printing, and what to print
-    ld c, MAX_HEARTS
-    ld a, HEART_TILE_INDEX
-    ld hl, HEART_LOCATION_ADDRESS
-
-    ; prints a heart starting at the left and incrementing index to the right (3x)
-    ; .print_heart
-    ;     ld [hli], a
-    ;     dec c
-    ;     jp nz, .print_heart
-
-    ; reset hearts back to MAX_HEARTS
-    ld a, MAX_HEARTS
-    ld [HEART_COUNT], a
     ret
 
 game_over:
