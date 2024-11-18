@@ -6,7 +6,7 @@ include "inc/utils.inc"
 RSSET _RAM + 8 ; $C008
 def ABSOLUTE_COORDINATE_X           rb 1
 def ABSOLUTE_COORDINATE_Y           rb 1
-def TOP_LEFT_PLAYER_TILE            rb 1
+def PLAYER_CURR_TILE                rb 1
 
 ; sprite addresses
 def SPRITE_0_ADDRESS equ            (_OAMRAM)

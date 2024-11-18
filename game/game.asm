@@ -99,10 +99,10 @@ reset_hearts:
     ld hl, HEART_LOCATION_ADDRESS
 
     ; prints a heart starting at the left and incrementing index to the right (3x)
-    .print_heart
-        ld [hli], a
-        dec c
-        jp nz, .print_heart
+    ; .print_heart
+    ;     ld [hli], a
+    ;     dec c
+    ;     jp nz, .print_heart
 
     ; reset hearts back to MAX_HEARTS
     ld a, MAX_HEARTS
@@ -128,6 +128,7 @@ game_over:
     DisableLCD
     UpdateTilemap GAME_OVER_WINDOW, _SCRN1
     EnableLCD
+    halt
 
     ret
 

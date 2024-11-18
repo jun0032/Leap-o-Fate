@@ -51,7 +51,7 @@ update_player:
     call check_jump
     .jump_not_pressed
 
-    call jump
+    ; call jump
     call b_button
 
     ; moving up/down will not be in the actual game
@@ -59,6 +59,45 @@ update_player:
     call check_down
 
     .done
+    ret
+
+update_player_current_tile:
+    ld a, [SPRITE_0_ADDRESS + OAMA_FLAGS]
+    bit OAMB_XFLIP, a
+    jp z, .check_right
+
+    ; check left side of player
+    PlayerTileCorner 2, 3
+    jp .done
+
+    ; check right side of player
+    .check_right
+        PlayerTileCorner 4, 3
+
+    .done
+
+    ld a, [hl]
+    ld [PLAYER_CURR_TILE], a
+    call collision
+
+    ret
+
+collision:
+    ld a, [PLAYER_CURR_TILE]
+    cp a, $20 ; $20 is the first spike tile index
+    jp nc, .spike_check
+
+    jp .safe
+
+    .spike_check
+        cp a, $28 ; tile after last spike tile
+        jp c, .take_damage
+        jp .safe
+    
+    .take_damage
+        call lose_heart
+    
+    .safe
     ret
 
 move_right:
@@ -181,21 +220,6 @@ b_button:
     call lose_heart
 
     .b_not_pressed
-    ret
-
-update_player_current_tile:
-    ; check top left corner of player
-    PlayerTileCorner 0, 0
-    
-    ld a, [hl]
-    cp a, $31 ; $31 is the spike tile index
-    jp z, .take_damage
-
-    jp .safe
-
-    .take_damage
-        call lose_heart
-    .safe
     ret
 
 ; NOTE: moving up and down will not be in the actual game
