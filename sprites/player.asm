@@ -7,14 +7,16 @@ include "sprites/sprites.inc"
 section "player", rom0
 
 update_player:
-    call update_player_current_tile
+    call spike_collision
 
     ; check if RIGHT is pressed
     ld a, [JOYPAD_CURRENT_ADDRESS]
     and PADF_RIGHT
     jp nz, .right_not_pressed
 
+    UpdateCurrTile 6, 3
     call move_right
+    ; jp .done
     .right_not_pressed
     
     ; check if LEFT is pressed
@@ -22,64 +24,73 @@ update_player:
     and PADF_LEFT
     jp nz, .left_not_pressed
     
+    UpdateCurrTile 1, 3
     call move_left
+    ; jp .done
     .left_not_pressed
 
-    ; JUMP [A] and RIGHT is pressed
     ld a, [JOYPAD_CURRENT_ADDRESS]
-    and PADF_A | PADF_RIGHT
-    jp nz, .jump_and_right_not_pressed
-    
-    call check_jump
-    call move_right
-    .jump_and_right_not_pressed
+    and PADF_UP
+    jp nz, .up_not_pressed
 
-    ; JUMP [A] and LEFT is pressed
-    ld a, [JOYPAD_CURRENT_ADDRESS]
-    and PADF_A | PADF_LEFT
-    jp nz, .jump_and_left_not_pressed
-    
-    call check_jump
-    call move_left
-    .jump_and_left_not_pressed
+    UpdateCurrTile 3, 0
+    call move_up
+    ; jp .done
+    .up_not_pressed
 
-    ; check if JUMP [A] is pressed
     ld a, [JOYPAD_CURRENT_ADDRESS]
-    and PADF_A
-    jp nz, .jump_not_pressed
+    and PADF_DOWN
+    jp nz, .down_not_pressed
+
+    UpdateCurrTile 3, 8
+    call move_down
+    ; jp .done
+    .down_not_pressed
+
+    UpdateCurrTile 7, 7
+    ; call gravity
+
+    ; ; JUMP [A] and RIGHT is pressed
+    ; ld a, [JOYPAD_CURRENT_ADDRESS]
+    ; and PADF_A | PADF_RIGHT
+    ; jp nz, .jump_and_right_not_pressed
     
-    call check_jump
-    .jump_not_pressed
+    ; call check_jump
+    ; call move_right
+    ; .jump_and_right_not_pressed
+
+    ; ; JUMP [A] and LEFT is pressed
+    ; ld a, [JOYPAD_CURRENT_ADDRESS]
+    ; and PADF_A | PADF_LEFT
+    ; jp nz, .jump_and_left_not_pressed
+    
+    ; call check_jump
+    ; call move_left
+    ; .jump_and_left_not_pressed
+
+    ; ; check if JUMP [A] is pressed
+    ; ld a, [JOYPAD_CURRENT_ADDRESS]
+    ; and PADF_A
+    ; jp nz, .jump_not_pressed
+    
+    ; call check_jump
+    ; .jump_not_pressed
 
     ; call jump
-    call b_button
-
-    ; moving up/down will not be in the actual game
-    call check_up
-    call check_down
+    ; call b_button
 
     .done
     ret
 
-update_player_current_tile:
-    ld a, [SPRITE_0_ADDRESS + OAMA_FLAGS]
-    bit OAMB_XFLIP, a
-    jp z, .check_right
+gravity:
+    CheckBlockCollision TILEMAP_SOLID_START, TILEMAP_SOLID_END
 
-    ; check left side of player
-    PlayerTileCorner 2, 3
-    jp .done
-
-    ; check right side of player
-    .check_right
-        PlayerTileCorner 4, 3
-
-    .done
-
-    ld a, [hl]
-    ld [PLAYER_CURR_TILE], a
-    call spike_collision
-
+    .no_collision
+        AddBetter [SPRITE_0_ADDRESS + OAMA_Y], 1
+        AddBetter [ABSOLUTE_COORDINATE_Y], 1
+        call player_move_animation
+    
+    .collision
     ret
 
 spike_collision:
@@ -107,44 +118,78 @@ spike_collision:
     .in_damage_cooldown
         dec a
         ld [DAMAGE_COOLDOWN], a
-        ; ld a, [SPRITE_0_ADDRESS + OAMA_FLAGS]
-        ; xor OAMF_PAL1
-        ; ld [SPRITE_0_ADDRESS + OAMA_FLAGS], a
+        ld a, [SPRITE_0_ADDRESS + OAMA_FLAGS]
+        xor OAMF_PAL1
+        ld [SPRITE_0_ADDRESS + OAMA_FLAGS], a
 
     .not_spike
     ret
 
 move_right:
-    ; move sprite right if went from no hold to hold
-    AddBetter [SPRITE_0_ADDRESS + OAMA_X], SPRITE_0_SPDX
-    AddBetter [ABSOLUTE_COORDINATE_X], SPRITE_0_SPDX
-    call player_move_animation
-
+    ; flip sprite in x-direction if sprite is facing opposite direction
     ld a, [SPRITE_0_ADDRESS + OAMA_FLAGS]
     bit OAMB_XFLIP, a
     jp z, .dont_flip
 
     xor a, OAMF_XFLIP
-    Copy [SPRITE_0_ADDRESS + OAMA_FLAGS], a
-
+    ld [SPRITE_0_ADDRESS + OAMA_FLAGS], a
+    
     .dont_flip
+    
+    CheckBlockCollision TILEMAP_SOLID_START, TILEMAP_SOLID_END
+
+    .no_collision
+        ; move sprite right if went from no hold to hold
+        AddBetter [SPRITE_0_ADDRESS + OAMA_X], SPRITE_0_SPDX
+        AddBetter [ABSOLUTE_COORDINATE_X], SPRITE_0_SPDX
+        call player_move_animation
+
+    .collision
     ret
 
 move_left:
-    ; move sprite left if went from no hold to hold
-    AddBetter [SPRITE_0_ADDRESS + OAMA_X], -SPRITE_0_SPDX
-    AddBetter [ABSOLUTE_COORDINATE_X], -SPRITE_0_SPDX
-    call player_move_animation
-
-    ; flip sprite in x-direction if sprite is facing opposite direction
     ld a, [SPRITE_0_ADDRESS + OAMA_FLAGS]
     bit OAMB_XFLIP, a
     jp nz, .dont_flip
 
     xor a, OAMF_XFLIP
-    Copy [SPRITE_0_ADDRESS + OAMA_FLAGS], a
+    ld [SPRITE_0_ADDRESS + OAMA_FLAGS], a
 
     .dont_flip
+    
+    CheckBlockCollision TILEMAP_SOLID_START, TILEMAP_SOLID_END
+
+    .no_collision
+        ; move sprite left if went from no hold to hold
+        AddBetter [SPRITE_0_ADDRESS + OAMA_X], -SPRITE_0_SPDX
+        AddBetter [ABSOLUTE_COORDINATE_X], -SPRITE_0_SPDX
+        call player_move_animation
+
+    .collision
+    ret
+
+move_up:    
+    CheckBlockCollision TILEMAP_SOLID_START, TILEMAP_SOLID_END
+
+    .no_collision
+        ; move sprite up if went from no hold to hold
+        AddBetter [SPRITE_0_ADDRESS + OAMA_Y], -SPRITE_0_SPDX
+        AddBetter [ABSOLUTE_COORDINATE_Y], -SPRITE_0_SPDX
+        call player_move_animation
+
+    .collision
+    ret
+
+move_down:
+    CheckBlockCollision TILEMAP_SOLID_START, TILEMAP_SOLID_END
+
+    .no_collision
+        ; move sprite up if went from no hold to hold
+        AddBetter [SPRITE_0_ADDRESS + OAMA_Y], SPRITE_0_SPDX
+        AddBetter [ABSOLUTE_COORDINATE_Y], SPRITE_0_SPDX
+        call player_move_animation
+
+    .collision
     ret
 
 check_jump:
@@ -229,35 +274,6 @@ b_button:
     call damage_player
 
     .b_not_pressed
-    ret
-
-; NOTE: moving up and down will not be in the actual game
-check_up:
-    ; UP is pressed
-    ld a, [JOYPAD_CURRENT_ADDRESS]
-    and PADF_UP
-    jp nz, .up_not_pressed
-
-    ; move sprite up if went from no hold to hold
-    AddBetter [SPRITE_0_ADDRESS + OAMA_Y], -SPRITE_0_SPDX
-    AddBetter [ABSOLUTE_COORDINATE_Y], -SPRITE_0_SPDX
-    call player_move_animation
-
-    .up_not_pressed
-    ret
-
-check_down:
-    ; DOWN is pressed
-    ld a, [JOYPAD_CURRENT_ADDRESS]
-    and PADF_DOWN
-    jp nz, .down_not_pressed
-
-    ; move sprite down if went from no hold to hold
-    AddBetter [SPRITE_0_ADDRESS + OAMA_Y], SPRITE_0_SPDX
-    AddBetter [ABSOLUTE_COORDINATE_Y], SPRITE_0_SPDX
-    call player_move_animation
-
-    .down_not_pressed
     ret
 
 export update_player

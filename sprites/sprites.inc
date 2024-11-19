@@ -19,6 +19,8 @@ def TOP_LEFT_CORNER_Y               equ (16)
 
 def TILEMAP_SPIKES_START            equ ($20)
 def TILEMAP_SPIKES_END              equ ($27)
+def TILEMAP_SOLID_START             equ ($80)
+def TILEMAP_SOLID_END               equ ($AD)
 
 def TILE_IN_ROW_FACTOR              equ (5)
 
@@ -116,6 +118,28 @@ macro PlayerTileCorner
     ld a, h
     add a, $98
     ld h, a
+endm
+
+macro UpdateCurrTile
+    PlayerTileCorner \1, \2
+    ld a, [hl]
+    ld [PLAYER_CURR_TILE], a
+endm
+
+; check if player is on a certain type of block
+; NOTE: requires labels .no_collision and .collision
+; params:
+; \1 tileid of first tile of target block type
+; \2 tileid of tile after last tile of target block type
+; function: jump to .collision if player is on target block type
+; jump to .no_collision otherwise
+macro CheckBlockCollision
+    ld a, [PLAYER_CURR_TILE]
+    cp a, \1
+    jp c, .no_collision
+
+    cp a, \2
+    jp c, .collision
 endm
 
 endc

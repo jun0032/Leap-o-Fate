@@ -25,7 +25,7 @@ def BROKEN_HEART_TILE_INDEX       equ ($0037)
 def HEART_LOCATION_ADDRESS        equ ($9C21)
 def BLANK_TILE_INDEX              equ ($000F)
 
-def DMG_CD                        equ ($40)
+def DMG_CD                        equ ($18)
 
 ; level
 def TWO_TILE_INDEX                equ ($52)
