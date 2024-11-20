@@ -42,9 +42,10 @@ update_player:
     call move_down
     .down_not_pressed
 
+    call gravity
+    
     GetPlayerTileIndex 3, 3
 
-    ; call gravity
 
     ; ; JUMP [A] and RIGHT is pressed
     ; ld a, [JOYPAD_CURRENT_ADDRESS]
@@ -78,13 +79,17 @@ update_player:
     ret
 
 gravity:
+    ; check bottom-side collision
+    CheckCollisionDirection 2, 8, 5, 8
 
     .no_collision
+        ; move sprite up if went from no hold to hold
         AddBetter [SPRITE_0_ADDRESS + OAMA_Y], 1
         AddBetter [ABSOLUTE_COORDINATE_Y], 1
         call player_move_animation
-    
+
     .collision
+
     ret
 
 spike_collision:
