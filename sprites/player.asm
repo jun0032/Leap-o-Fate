@@ -8,52 +8,48 @@ section "player", rom0
 
 update_player:
     call spike_collision
+    call sprite_collision
 
     ; check if RIGHT is pressed
     ld a, [JOYPAD_CURRENT_ADDRESS]
     and PADF_RIGHT
-    jp nz, .right_not_pressed
+    jr nz, .right_not_pressed
 
-    UpdateCurrTile 6, 3
     call move_right
-    ; jp .done
     .right_not_pressed
     
     ; check if LEFT is pressed
     ld a, [JOYPAD_CURRENT_ADDRESS]
     and PADF_LEFT
-    jp nz, .left_not_pressed
+    jr nz, .left_not_pressed
     
-    UpdateCurrTile 1, 3
     call move_left
-    ; jp .done
     .left_not_pressed
 
+    ; check if UP is pressed
     ld a, [JOYPAD_CURRENT_ADDRESS]
     and PADF_UP
-    jp nz, .up_not_pressed
+    jr nz, .up_not_pressed
 
-    UpdateCurrTile 3, 0
     call move_up
-    ; jp .done
     .up_not_pressed
 
+    ; check if DOWN is pressed
     ld a, [JOYPAD_CURRENT_ADDRESS]
     and PADF_DOWN
-    jp nz, .down_not_pressed
+    jr nz, .down_not_pressed
 
-    UpdateCurrTile 3, 8
     call move_down
-    ; jp .done
     .down_not_pressed
 
-    UpdateCurrTile 7, 7
+    GetPlayerTileIndex 3, 3
+
     ; call gravity
 
     ; ; JUMP [A] and RIGHT is pressed
     ; ld a, [JOYPAD_CURRENT_ADDRESS]
     ; and PADF_A | PADF_RIGHT
-    ; jp nz, .jump_and_right_not_pressed
+    ; jr nz, .jump_and_right_not_pressed
     
     ; call check_jump
     ; call move_right
@@ -62,7 +58,7 @@ update_player:
     ; ; JUMP [A] and LEFT is pressed
     ; ld a, [JOYPAD_CURRENT_ADDRESS]
     ; and PADF_A | PADF_LEFT
-    ; jp nz, .jump_and_left_not_pressed
+    ; jr nz, .jump_and_left_not_pressed
     
     ; call check_jump
     ; call move_left
@@ -71,19 +67,17 @@ update_player:
     ; ; check if JUMP [A] is pressed
     ; ld a, [JOYPAD_CURRENT_ADDRESS]
     ; and PADF_A
-    ; jp nz, .jump_not_pressed
+    ; jr nz, .jump_not_pressed
     
     ; call check_jump
     ; .jump_not_pressed
 
     ; call jump
     ; call b_button
-
     .done
     ret
 
 gravity:
-    CheckBlockCollision TILEMAP_SOLID_START, TILEMAP_SOLID_END
 
     .no_collision
         AddBetter [SPRITE_0_ADDRESS + OAMA_Y], 1
@@ -94,26 +88,27 @@ gravity:
     ret
 
 spike_collision:
+    push af
     ; check if damage cooldown is off
     ld a, [DAMAGE_COOLDOWN]
     cp a, 0
-    jp nz, .in_damage_cooldown
+    jr nz, .in_damage_cooldown
 
-    ; check if the player's current tile is a spike
-    ld a, [PLAYER_CURR_TILE]
+    ; [hl] is the address of the current tile in consideration
+    ld a, [hl]
 
     ; check if the tile index is below the range of the spikes' tile index
     cp a, TILEMAP_SPIKES_START
-    jp c, .not_spike
+    jr c, .not_spike
 
     ; check if the tile index is above the range of the spikes' tile index
     cp a, TILEMAP_SPIKES_END + 1
-    jp nc, .not_spike
+    jr nc, .not_spike
 
     ; damage and reset damage cooldown
     call damage_player
     Copy [DAMAGE_COOLDOWN], DMG_CD
-    jp .not_spike
+    jr .not_spike
 
     .in_damage_cooldown
         dec a
@@ -123,20 +118,24 @@ spike_collision:
         ld [SPRITE_0_ADDRESS + OAMA_FLAGS], a
 
     .not_spike
+    pop af
+    ret
+
+sprite_collision:
     ret
 
 move_right:
     ; flip sprite in x-direction if sprite is facing opposite direction
     ld a, [SPRITE_0_ADDRESS + OAMA_FLAGS]
     bit OAMB_XFLIP, a
-    jp z, .dont_flip
+    jr z, .dont_flip
 
     xor a, OAMF_XFLIP
     ld [SPRITE_0_ADDRESS + OAMA_FLAGS], a
     
     .dont_flip
-    
-    CheckBlockCollision TILEMAP_SOLID_START, TILEMAP_SOLID_END
+        ; check right-side collision
+        CheckCollisionDirection 6, 2, 6, 7
 
     .no_collision
         ; move sprite right if went from no hold to hold
@@ -150,14 +149,14 @@ move_right:
 move_left:
     ld a, [SPRITE_0_ADDRESS + OAMA_FLAGS]
     bit OAMB_XFLIP, a
-    jp nz, .dont_flip
+    jr nz, .dont_flip
 
     xor a, OAMF_XFLIP
     ld [SPRITE_0_ADDRESS + OAMA_FLAGS], a
 
     .dont_flip
-    
-    CheckBlockCollision TILEMAP_SOLID_START, TILEMAP_SOLID_END
+        ; check left-side collision
+        CheckCollisionDirection 1, 2, 1, 7
 
     .no_collision
         ; move sprite left if went from no hold to hold
@@ -168,20 +167,22 @@ move_left:
     .collision
     ret
 
-move_up:    
-    CheckBlockCollision TILEMAP_SOLID_START, TILEMAP_SOLID_END
+move_up:
+    ; check top-side collision
+    CheckCollisionDirection 2, 0, 5, 0
 
     .no_collision
         ; move sprite up if went from no hold to hold
-        AddBetter [SPRITE_0_ADDRESS + OAMA_Y], -SPRITE_0_SPDX
-        AddBetter [ABSOLUTE_COORDINATE_Y], -SPRITE_0_SPDX
+        AddBetter [SPRITE_0_ADDRESS + OAMA_Y], -2
+        AddBetter [ABSOLUTE_COORDINATE_Y], -2
         call player_move_animation
 
     .collision
     ret
 
 move_down:
-    CheckBlockCollision TILEMAP_SOLID_START, TILEMAP_SOLID_END
+    ; check bottom-side collision
+    CheckCollisionDirection 2, 8, 5, 8
 
     .no_collision
         ; move sprite up if went from no hold to hold
@@ -196,7 +197,7 @@ check_jump:
     ; check if currently jumping
     ld a, [JUMP_TOGGLE]
     cp a, $FF
-    jp nz, .currently_jumping
+    jr nz, .currently_jumping
 
     ; Initialize Jump Settings
     Copy [JUMP_TOGGLE], 0
@@ -210,17 +211,17 @@ jump:
     ; if not jumping skip
     ld a, [JUMP_TOGGLE]
     cp a, $FF
-    jp z, .done
+    jr z, .done
 
     ; check if done jumping
     ld a, [JUMP_TOGGLE]
     cp a, 0
-    jp z, .start_jump
+    jr z, .start_jump
 
     Copy b, [GROUND]
     ld a, [SPRITE_0_ADDRESS + OAMA_Y]
     cp a, b
-    jp z, .jump_cooldown
+    jr z, .jump_cooldown
 
     .start_jump
         ; add character y-position with current vertical velocity
@@ -238,7 +239,7 @@ jump:
 
         ; reset jump counter if done waiting
         cp a, JUMP_COOLDOWN
-        jp c, .done
+        jr c, .done
         Copy [JUMP_TOGGLE], $FF
 
     .done
@@ -247,14 +248,14 @@ jump:
 player_move_animation:
     ld a, [GAME_COUNTER]
     and SPRITE_0_FREQ
-    jp nz, .done
+    jr nz, .done
 
     ld a, [SPRITE_0_ADDRESS + OAMA_TILEID]
     cp a, SPRITE_0_DEFAULT_ANIMATION
-    jp z, .move_animate
+    jr z, .move_animate
 
     Copy [SPRITE_0_ADDRESS + OAMA_TILEID], SPRITE_0_DEFAULT_ANIMATION
-    jp .done
+    jr .done
 
     .move_animate
         Copy [SPRITE_0_ADDRESS + OAMA_TILEID], SPRITE_0_MOVE_ANIMATION
@@ -268,7 +269,7 @@ b_button:
     ; check if B_BUTTON is held
     ld a, [JOYPAD_PRESSED_ADDRESS]
     and PADF_B
-    jp nz, .b_not_pressed
+    jr nz, .b_not_pressed
 
     ; lose heart when B_BUTTON is held
     call damage_player

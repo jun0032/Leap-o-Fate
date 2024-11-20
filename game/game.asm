@@ -17,16 +17,16 @@ check_start:
     ; check if game is on start screen
     ld a, [GAME_STATE]
     bit GAMEB_START_SCREEN, a
-    jp z, .done
+    jr z, .done
 
     ; check if game is starting
     bit GAMEB_STARTING, a
-    jp z, .start
+    jr z, .start
 
     ; check if start button is pressed
     ld a, [JOYPAD_PRESSED_ADDRESS]
     and PADF_START
-    jp nz, .done
+    jr nz, .done
 
     ; toggle game starting if start button is pressed
     ld a, [GAME_STATE]
@@ -45,7 +45,7 @@ start:
 
     ; initalize sprite positions and reset lives when window is pulled all the way down
     cp a, WINDOW_GAME_Y
-    jp c, .continue_pulling
+    jr c, .continue_pulling
 
     ; set game start screen on, game starting off
     ld a, [GAME_STATE]
@@ -76,7 +76,7 @@ damage_player:
     .find_curr_heart
         inc hl
         dec a
-        jp nz, .find_curr_heart
+        jr nz, .find_curr_heart
 
     ; break the heart
     ld a, BROKEN_HEART_TILE_INDEX
@@ -85,7 +85,7 @@ damage_player:
     ; decrement heart count and check if game is over
     ld a, [HEART_COUNT]
     dec a
-    jp nz, .not_game_over
+    jr nz, .not_game_over
 
     call game_over
 
@@ -125,19 +125,19 @@ check_next_level:
     ld a, [SPRITE_0_ADDRESS + OAMA_X]
     add a, b
     cp a, DOOR_1_X
-    jp c, .no_win
+    jr c, .no_win
 
     cp a, (DOOR_1_X + TILE_SIDE_LENGTH)
-    jp nc, .no_win
+    jr nc, .no_win
 
     Copy b, [rSCY]
     ld a, [SPRITE_0_ADDRESS + OAMA_Y]
     add a, b
     cp a, DOOR_1_Y
-    jp c, .no_win
+    jr c, .no_win
 
     cp a, (DOOR_1_Y + TILE_SIDE_LENGTH)
-    jp nc, .no_win
+    jr nc, .no_win
 
     call next_level
 

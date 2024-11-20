@@ -11,3 +11,7 @@
   but only when the player moves
 - Got collision with first spike! @ Index: $6D
 - Now to compare with tile index
+- Finished GetPlayerTileIndex to be able to compare tile indices
+
+# 11/19
+- Reorganized collision and spike collision

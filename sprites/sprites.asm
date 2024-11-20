@@ -39,8 +39,8 @@ init_sprites_pos:
     Copy [SPRITE_2_ADDRESS + OAMA_X], SPRITE_2_INIT_X
     Copy [SPRITE_2_ADDRESS + OAMA_Y], SPRITE_2_INIT_Y
 
-    Copy [ABSOLUTE_COORDINATE_X], SPRITE_0_INIT_X
-    Copy [ABSOLUTE_COORDINATE_Y], SPRITE_0_INIT_Y
+    Copy [ABSOLUTE_COORDINATE_X], SPRITE_0_INIT_X - TOP_LEFT_CORNER_X
+    Copy [ABSOLUTE_COORDINATE_Y], SPRITE_0_INIT_Y - TOP_LEFT_CORNER_Y
     ret
 
 update_sprites:
@@ -48,6 +48,7 @@ update_sprites:
     call update_npcs
     ret
 
+; MAKE THIS INTO ONE FUNC
 update_npcs:
     call sprite_1_ai
     call sprite_2_ai
@@ -57,7 +58,7 @@ sprite_1_ai:
     ; check direction it is moving in
     ld a, [SPRITE_1_ADDRESS + OAMA_FLAGS]
     bit OAMB_XFLIP, a
-    jp nz, .move_left
+    jr nz, .move_left
     
     ; move until x = right roaming endpoint
     .move_right
@@ -66,10 +67,10 @@ sprite_1_ai:
         add a, b
         ld b, SPRITE_1_END_X
         cp a, b
-        jp nc, .swap_direction
+        jr nc, .swap_direction
 
     AddBetter [SPRITE_1_ADDRESS + OAMA_X], SPRITE_1_SPDX
-    jp .move_done
+    jr .move_done
     
     ; move until x = left roaming endpoint
     .move_left
@@ -78,10 +79,10 @@ sprite_1_ai:
         add a, b
         ld b, SPRITE_1_INIT_X
         cp a, b
-        jp c, .swap_direction
+        jr c, .swap_direction
 
     AddBetter [SPRITE_1_ADDRESS + OAMA_X], -SPRITE_1_SPDX
-    jp .move_done
+    jr .move_done
 
     .swap_direction
         ld a, [SPRITE_1_ADDRESS + OAMA_FLAGS]
@@ -93,14 +94,14 @@ sprite_1_ai:
     ; walking animation
     ld a, [GAME_COUNTER]
     and SPRITE_1_FREQ
-    jp nz, .animate_done
+    jr nz, .animate_done
 
     ld a, [SPRITE_1_ADDRESS + OAMA_TILEID]
     cp a, SPRITE_1_DEFAULT_ANIMATION
-    jp z, .animate
+    jr z, .animate
 
     Copy [SPRITE_1_ADDRESS + OAMA_TILEID], SPRITE_1_DEFAULT_ANIMATION
-    jp .animate_done
+    jr .animate_done
 
     .animate
         Copy [SPRITE_1_ADDRESS + OAMA_TILEID], SPRITE_1_MOVE_ANIMATION
@@ -112,12 +113,12 @@ sprite_2_ai:
     ; walking animation
     ld a, [GAME_COUNTER]
     and SPRITE_2_FREQ
-    jp nz, .animate_done
+    jr nz, .animate_done
     
     ; check direction it is moving in
     ld a, [SPRITE_2_ADDRESS + OAMA_FLAGS]
     bit OAMB_XFLIP, a
-    jp nz, .move_left
+    jr nz, .move_left
     
     ; move until x = right roaming endpoint
     .move_right
@@ -126,10 +127,10 @@ sprite_2_ai:
         add a, b
         ld b, SPRITE_2_END_X
         cp a, b
-        jp nc, .swap_direction
+        jr nc, .swap_direction
 
     AddBetter [SPRITE_2_ADDRESS + OAMA_X], SPRITE_2_SPDX
-    jp .move_done
+    jr .move_done
     
     ; move until x = left roaming endpoint
     .move_left
@@ -138,10 +139,10 @@ sprite_2_ai:
         add a, b
         ld b, SPRITE_2_INIT_X
         cp a, b
-        jp c, .swap_direction
+        jr c, .swap_direction
 
     AddBetter [SPRITE_2_ADDRESS + OAMA_X], -SPRITE_2_SPDX
-    jp .move_done
+    jr .move_done
 
     .swap_direction
         ld a, [SPRITE_2_ADDRESS + OAMA_FLAGS]
@@ -152,10 +153,10 @@ sprite_2_ai:
 
     ld a, [SPRITE_2_ADDRESS + OAMA_TILEID]
     cp a, SPRITE_2_DEFAULT_ANIMATION
-    jp z, .animate
+    jr z, .animate
 
     Copy [SPRITE_2_ADDRESS + OAMA_TILEID], SPRITE_2_DEFAULT_ANIMATION
-    jp .animate_done
+    jr .animate_done
 
     .animate
         Copy [SPRITE_2_ADDRESS + OAMA_TILEID], SPRITE_2_MOVE_ANIMATION

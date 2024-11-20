@@ -20,9 +20,7 @@ def TOP_LEFT_CORNER_Y               equ (16)
 def TILEMAP_SPIKES_START            equ ($20)
 def TILEMAP_SPIKES_END              equ ($27)
 def TILEMAP_SOLID_START             equ ($80)
-def TILEMAP_SOLID_END               equ ($AD)
-
-def TILE_IN_ROW_FACTOR              equ (5)
+def TILEMAP_SOLID_END               equ ($AC)
 
 ; key positions for sprites
 def SPRITE_0_INIT_X                 equ (24)
@@ -75,56 +73,50 @@ macro InitOAM
         jr nz, .init_oam\@
 endm
 
-; 
-macro PlayerTileCorner
+macro GetPlayerTileIndex
     ; divide absolute x coordinate by 8 to get player tilemap column
     ld a, [ABSOLUTE_COORDINATE_X]
     add a, \1
-    sub a, TOP_LEFT_CORNER_X
     srl a
     srl a
     srl a
+    ld b, 0
     ld c, a
 
     ; divide absolute y coordinate by 8 to get player tilemap row
     ld a, [ABSOLUTE_COORDINATE_Y]
     add a, \2
-    sub a, TOP_LEFT_CORNER_Y
     srl a
     srl a
     srl a
 
-    ; prepare hl for 16-bit multiplication and set counter (b)
+    ; prepare hl for 16-bit "multiplication" and set counter (b)
     ld h, 0
     ld l, a
-    ld b, TILE_IN_ROW_FACTOR
-
-    ; multiply absolute x coordinate by 32
-    .multiply_by_two\@
-        sla h
-        sla l
-        jp nc, .dont_carry\@
-        inc h
-        
-        .dont_carry\@
-            dec b
-
-        jp nz, .multiply_by_two\@
+    
+    ; multiply tilemap row by 32
+    add hl, hl
+    add hl, hl
+    add hl, hl
+    add hl, hl
+    add hl, hl
 
     ; add column to get tilemap index
     add hl, bc
 
     ; add $9800 + index to get index address in VRAM to compare the tile index
-    ld a, h
-    add a, $98
-    ld h, a
-endm
-
-macro UpdateCurrTile
-    PlayerTileCorner \1, \2
+    ld de, _SCRN0
+    add hl, de
     ld a, [hl]
     ld [PLAYER_CURR_TILE], a
 endm
+
+; not currently using this DELETE THIS
+; macro UpdateCurrTile
+;     GetPlayerTileIndex \1, \2
+;     ld a, [hl]
+;     ld [PLAYER_CURR_TILE], a
+; endm
 
 ; check if player is on a certain type of block
 ; NOTE: requires labels .no_collision and .collision
@@ -133,13 +125,35 @@ endm
 ; \2 tileid of tile after last tile of target block type
 ; function: jump to .collision if player is on target block type
 ; jump to .no_collision otherwise
-macro CheckBlockCollision
-    ld a, [PLAYER_CURR_TILE]
-    cp a, \1
-    jp c, .no_collision
+; macro CheckBlockCollision
+;     cp a, TILEMAP_SOLID_START
+;     jp c, .no_collision
 
-    cp a, \2
-    jp c, .collision
+;     cp a, TILEMAP_SOLID_END
+;     jp c, .collision
+; endm
+
+macro CheckCollisionDirection
+    ; check first corner
+    GetPlayerTileIndex \1, \2
+    ; call spike_collision
+
+    cp a, TILEMAP_SOLID_START 
+    jr c, .second_check
+
+    cp a, TILEMAP_SOLID_END + 1
+    jr c, .collision
+
+    .second_check
+        ; check second corner
+        GetPlayerTileIndex \3, \4
+        ; call spike_collision
+
+        cp a, TILEMAP_SOLID_START
+        jr c, .no_collision
+
+        cp a, TILEMAP_SOLID_END + 1
+        jr c, .collision
 endm
 
 endc
