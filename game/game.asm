@@ -120,29 +120,48 @@ game_over:
 
 ; REWORK
 
-check_next_level:
-    Copy b, [rSCX]
-    ld a, [SPRITE_0_ADDRESS + OAMA_X]
-    add a, b
-    cp a, DOOR_1_X
-    jr c, .no_win
+; check_next_level:
+;     Copy b, [rSCX]
+;     ld a, [SPRITE_0_ADDRESS + OAMA_X]
+;     add a, b
+;     cp a, DOOR_1_X
+;     jr c, .no_win
 
-    cp a, (DOOR_1_X + TILE_SIDE_LENGTH)
-    jr nc, .no_win
+;     cp a, (DOOR_1_X + TILE_SIDE_LENGTH)
+;     jr nc, .no_win
 
-    Copy b, [rSCY]
-    ld a, [SPRITE_0_ADDRESS + OAMA_Y]
-    add a, b
-    cp a, DOOR_1_Y
-    jr c, .no_win
+;     Copy b, [rSCY]
+;     ld a, [SPRITE_0_ADDRESS + OAMA_Y]
+;     add a, b
+;     cp a, DOOR_1_Y
+;     jr c, .no_win
 
-    cp a, (DOOR_1_Y + TILE_SIDE_LENGTH)
-    jr nc, .no_win
+;     cp a, (DOOR_1_Y + TILE_SIDE_LENGTH)
+;     jr nc, .no_win
 
-    call next_level
+;     call next_level
 
-    .no_win
+;     .no_win
+;     ret
+
+check_door:
+    ld a, [ABSOLUTE_COORDINATE_X]
+    cp a, 128
+    jr nz, .no_door
+
+    ld a, [ABSOLUTE_COORDINATE_Y]
+    cp a, 168
+    jr nz, .no_door
+
+    AddBetter [SPRITE_0_ADDRESS + OAMA_X], 112
+    AddBetter [ABSOLUTE_COORDINATE_X], 112
+
+    AddBetter [SPRITE_0_ADDRESS + OAMA_Y], 24
+    AddBetter [ABSOLUTE_COORDINATE_Y], 24
+
+    .no_door
     ret
+
 
 next_level:
     ; "hide" enemy sprites
@@ -167,4 +186,4 @@ next_level:
     
     ret
 
-export init_game_states, check_start, damage_player, check_next_level
+export init_game_states, check_start, damage_player, check_door

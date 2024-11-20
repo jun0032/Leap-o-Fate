@@ -10,39 +10,46 @@ update_player:
     call spike_collision
     call sprite_collision
 
-    ; check if RIGHT is pressed
     ld a, [JOYPAD_CURRENT_ADDRESS]
-    and PADF_RIGHT
-    jr nz, .right_not_pressed
+    cp a, $FF
+    jr nz, .move_player
 
-    call move_right
-    .right_not_pressed
-    
-    ; check if LEFT is pressed
-    ld a, [JOYPAD_CURRENT_ADDRESS]
-    and PADF_LEFT
-    jr nz, .left_not_pressed
-    
-    call move_left
-    .left_not_pressed
+    call check_door
 
-    ; check if UP is pressed
-    ld a, [JOYPAD_CURRENT_ADDRESS]
-    and PADF_UP
-    jr nz, .up_not_pressed
+    .move_player
+        ; check if RIGHT is pressed
+        ld a, [JOYPAD_CURRENT_ADDRESS]
+        and PADF_RIGHT
+        jr nz, .right_not_pressed
 
-    call move_up
-    .up_not_pressed
+        call move_right
+        .right_not_pressed
+        
+        ; check if LEFT is pressed
+        ld a, [JOYPAD_CURRENT_ADDRESS]
+        and PADF_LEFT
+        jr nz, .left_not_pressed
+        
+        call move_left
+        .left_not_pressed
 
-    ; check if DOWN is pressed
-    ld a, [JOYPAD_CURRENT_ADDRESS]
-    and PADF_DOWN
-    jr nz, .down_not_pressed
+        ; check if UP is pressed
+        ld a, [JOYPAD_CURRENT_ADDRESS]
+        and PADF_UP
+        jr nz, .up_not_pressed
 
-    call move_down
-    .down_not_pressed
+        call move_up
+        .up_not_pressed
 
-    call gravity
+        ; check if DOWN is pressed
+        ld a, [JOYPAD_CURRENT_ADDRESS]
+        and PADF_DOWN
+        jr nz, .down_not_pressed
+
+        call move_down
+        .down_not_pressed
+
+    ; call gravity
     
     GetPlayerTileIndex 3, 3
 
@@ -187,7 +194,7 @@ move_up:
 
 move_down:
     ; check bottom-side collision
-    CheckCollisionDirection 2, 8, 5, 8
+    ; CheckCollisionDirection 2, 8, 5, 8
 
     .no_collision
         ; move sprite up if went from no hold to hold
