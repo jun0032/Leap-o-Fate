@@ -11,6 +11,7 @@ init_game_states:
     Copy [GAME_COUNTER], 0
     Copy [GAME_STATE], $FF
     Copy [DAMAGE_COOLDOWN], 0
+    Copy [MANA_REGEN], 0
     ret
 
 check_start:
@@ -56,6 +57,7 @@ start:
     ; set initial sprite positions
     call init_sprites_pos
     Copy [HEART_COUNT], MAX_HEARTS
+    Copy [MANA_POINTS], MAX_MANA_POINTS
     
     ; load next level window
     DisableLCD
@@ -91,6 +93,12 @@ damage_player:
 
     .not_game_over
         ld [HEART_COUNT], a
+    ret
+
+use_mana:
+    
+    
+
     ret
 
 game_over:

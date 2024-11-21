@@ -7,7 +7,8 @@ def GAME_COUNTER                  rb 1
 def GAME_STATE                    rb 1
 def HEART_COUNT                   rb 1
 def DAMAGE_COOLDOWN               rb 1
-def MANA                          rb 1
+def MANA_POINTS                   rb 1
+def MANA_REGEN                    rb 1
 
 ; flags for game state
 def GAMEF_STARTING                equ ($0002)
@@ -28,6 +29,8 @@ def TILEMAP_SPIKES_END              equ ($27)
 def TILEMAP_SOLID_START             equ ($80)
 def TILEMAP_SOLID_END               equ ($AC)
 
+def GRAVITY                       equ (1)
+
 ; hearts
 def MAX_HEARTS                    equ ($0003)
 def HEART_TILE_INDEX              equ ($0036)
@@ -36,7 +39,10 @@ def HEART_LOCATION_ADDRESS        equ ($9C21)
 def BLANK_TILE_INDEX              equ ($000F)
 
 def DMG_CD                        equ ($18)
-def GRAVITY                       equ (1)
+
+def MAX_MANA_POINTS               equ (6)
+def MANA_REGEN_TIME               equ (20)
+
 
 ; level
 def TWO_TILE_INDEX                equ ($52)
