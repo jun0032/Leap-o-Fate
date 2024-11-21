@@ -10,48 +10,49 @@ update_player:
     call spike_collision
     ; call sprite_collision
 
+    ; check if [B] is pressed
+    ld a, [JOYPAD_PRESSED_ADDRESS]
+    and PADF_B
+    jr nz, .b_not_pressed
+
+    call check_door
+    .b_not_pressed
+
+    ; check if RIGHT is pressed
     ld a, [JOYPAD_CURRENT_ADDRESS]
-    cp a, $FF
-    jr nz, .move_player
+    and PADF_RIGHT
+    jr nz, .right_not_pressed
 
-    ; call check_door
+    call move_right
+    .right_not_pressed
+    
+    ; check if LEFT is pressed
+    ld a, [JOYPAD_CURRENT_ADDRESS]
+    and PADF_LEFT
+    jr nz, .left_not_pressed
+    
+    call move_left
+    .left_not_pressed
 
-    .move_player
-        ; check if RIGHT is pressed
-        ld a, [JOYPAD_CURRENT_ADDRESS]
-        and PADF_RIGHT
-        jr nz, .right_not_pressed
+    ; check if BTN_A is pressed
+    ld a, [JOYPAD_CURRENT_ADDRESS]
+    and PADF_A
+    jr nz, .a_not_pressed
 
-        call move_right
-        .right_not_pressed
+    ; check if UP is pressed
+    ld a, [JOYPAD_CURRENT_ADDRESS]
+    and PADF_UP
+    jr nz, .up_not_pressed
+
+    call move_up
+    .up_not_pressed
+
+    jr .no_gravity
+
+    .a_not_pressed
+        call gravity
         
-        ; check if LEFT is pressed
-        ld a, [JOYPAD_CURRENT_ADDRESS]
-        and PADF_LEFT
-        jr nz, .left_not_pressed
-        
-        call move_left
-        .left_not_pressed
-
-        ; check if BTN_A is pressed
-        ld a, [JOYPAD_CURRENT_ADDRESS]
-        and PADF_A
-        jr nz, .a_not_pressed
-
-        ; check if UP is pressed
-        ld a, [JOYPAD_CURRENT_ADDRESS]
-        and PADF_UP
-        jr nz, .up_not_pressed
-
-        call move_up
-        .up_not_pressed
-
-        jr .no_gravity
-
-        .a_not_pressed
-            call gravity
-        
-        .no_gravity
+    .no_gravity
     
     GetPlayerTileIndex 3, 3
 
