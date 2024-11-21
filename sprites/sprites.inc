@@ -2,25 +2,10 @@ if !def(SPRITES_RGBINC)
 def SPRITES_RGBINC equ 1
 include "inc/utils.inc"
 
-; absolute coordinate
-RSSET _RAM + 8 ; $C008
-def ABSOLUTE_COORDINATE_X           rb 1
-def ABSOLUTE_COORDINATE_Y           rb 1
-def PLAYER_CURR_TILE                rb 1
-
 ; sprite addresses
 def SPRITE_0_ADDRESS equ            (_OAMRAM)
 def SPRITE_1_ADDRESS equ            (_OAMRAM + sizeof_OAM_ATTRS)
 def SPRITE_2_ADDRESS equ            (SPRITE_1_ADDRESS + sizeof_OAM_ATTRS)
-
-; tilemap top left corner
-def TOP_LEFT_CORNER_X               equ (8)
-def TOP_LEFT_CORNER_Y               equ (16)
-
-def TILEMAP_SPIKES_START            equ ($20)
-def TILEMAP_SPIKES_END              equ ($27)
-def TILEMAP_SOLID_START             equ ($80)
-def TILEMAP_SOLID_END               equ ($AC)
 
 ; key positions for sprites
 def SPRITE_0_INIT_X                 equ (24)
@@ -40,14 +25,11 @@ def SPRITE_0_MOVE_ANIMATION         equ (10)
 def SPRITE_0_SPDX                   equ (1)
 def SPRITE_0_FREQ                   equ (3)
 
-def GRAVITY                         equ (1)
-def JUMP_VERTICAL_VELOCITY          equ (-6)
-def JUMP_COOLDOWN                   equ ($15)
-
-rsset _RAM + 32
-def GROUND                          rb 1
-def JUMP_TOGGLE                     rb 1
-def VERTICAL_VELOCITY               rb 1
+; absolute coordinates
+RSSET _RAM + 32
+def ABSOLUTE_COORDINATE_X           rb 1
+def ABSOLUTE_COORDINATE_Y           rb 1
+def PLAYER_CURR_TILE                rb 1
 
 ; sprite 1 attributes
 def SPRITE_1_DEFAULT_ANIMATION      equ (11)

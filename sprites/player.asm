@@ -8,13 +8,13 @@ section "player", rom0
 
 update_player:
     call spike_collision
-    call sprite_collision
+    ; call sprite_collision
 
     ld a, [JOYPAD_CURRENT_ADDRESS]
     cp a, $FF
     jr nz, .move_player
 
-    call check_door
+    ; call check_door
 
     .move_player
         ; check if RIGHT is pressed
@@ -33,6 +33,11 @@ update_player:
         call move_left
         .left_not_pressed
 
+        ; check if BTN_A is pressed
+        ld a, [JOYPAD_CURRENT_ADDRESS]
+        and PADF_A
+        jr nz, .a_not_pressed
+
         ; check if UP is pressed
         ld a, [JOYPAD_CURRENT_ADDRESS]
         and PADF_UP
@@ -41,47 +46,15 @@ update_player:
         call move_up
         .up_not_pressed
 
-        ; check if DOWN is pressed
-        ld a, [JOYPAD_CURRENT_ADDRESS]
-        and PADF_DOWN
-        jr nz, .down_not_pressed
+        jr .no_gravity
 
-        call move_down
-        .down_not_pressed
-
-    ; call gravity
+        .a_not_pressed
+            call gravity
+        
+        .no_gravity
     
     GetPlayerTileIndex 3, 3
 
-
-    ; ; JUMP [A] and RIGHT is pressed
-    ; ld a, [JOYPAD_CURRENT_ADDRESS]
-    ; and PADF_A | PADF_RIGHT
-    ; jr nz, .jump_and_right_not_pressed
-    
-    ; call check_jump
-    ; call move_right
-    ; .jump_and_right_not_pressed
-
-    ; ; JUMP [A] and LEFT is pressed
-    ; ld a, [JOYPAD_CURRENT_ADDRESS]
-    ; and PADF_A | PADF_LEFT
-    ; jr nz, .jump_and_left_not_pressed
-    
-    ; call check_jump
-    ; call move_left
-    ; .jump_and_left_not_pressed
-
-    ; ; check if JUMP [A] is pressed
-    ; ld a, [JOYPAD_CURRENT_ADDRESS]
-    ; and PADF_A
-    ; jr nz, .jump_not_pressed
-    
-    ; call check_jump
-    ; .jump_not_pressed
-
-    ; call jump
-    ; call b_button
     .done
     ret
 
@@ -185,76 +158,11 @@ move_up:
 
     .no_collision
         ; move sprite up if went from no hold to hold
-        AddBetter [SPRITE_0_ADDRESS + OAMA_Y], -2
-        AddBetter [ABSOLUTE_COORDINATE_Y], -2
+        AddBetter [SPRITE_0_ADDRESS + OAMA_Y], -1
+        AddBetter [ABSOLUTE_COORDINATE_Y], -1
         call player_move_animation
 
     .collision
-    ret
-
-move_down:
-    ; check bottom-side collision
-    ; CheckCollisionDirection 2, 8, 5, 8
-
-    .no_collision
-        ; move sprite up if went from no hold to hold
-        AddBetter [SPRITE_0_ADDRESS + OAMA_Y], SPRITE_0_SPDX
-        AddBetter [ABSOLUTE_COORDINATE_Y], SPRITE_0_SPDX
-        call player_move_animation
-
-    .collision
-    ret
-
-check_jump:
-    ; check if currently jumping
-    ld a, [JUMP_TOGGLE]
-    cp a, $FF
-    jr nz, .currently_jumping
-
-    ; Initialize Jump Settings
-    Copy [JUMP_TOGGLE], 0
-    Copy [VERTICAL_VELOCITY], JUMP_VERTICAL_VELOCITY
-    Copy [GROUND], [SPRITE_0_ADDRESS + OAMA_Y]
-
-    .currently_jumping
-    ret
-
-jump:
-    ; if not jumping skip
-    ld a, [JUMP_TOGGLE]
-    cp a, $FF
-    jr z, .done
-
-    ; check if done jumping
-    ld a, [JUMP_TOGGLE]
-    cp a, 0
-    jr z, .start_jump
-
-    Copy b, [GROUND]
-    ld a, [SPRITE_0_ADDRESS + OAMA_Y]
-    cp a, b
-    jr z, .jump_cooldown
-
-    .start_jump
-        ; add character y-position with current vertical velocity
-        Copy b, [VERTICAL_VELOCITY]
-        AddBetter [SPRITE_0_ADDRESS + OAMA_Y], b
-
-        ; decrease vertical velocity
-        AddBetter [VERTICAL_VELOCITY], GRAVITY
-
-    .jump_cooldown
-        ; increment the jump counter
-        ld a, [JUMP_TOGGLE]
-        inc a
-        ld [JUMP_TOGGLE], a
-
-        ; reset jump counter if done waiting
-        cp a, JUMP_COOLDOWN
-        jr c, .done
-        Copy [JUMP_TOGGLE], $FF
-
-    .done
     ret
 
 player_move_animation:
@@ -275,8 +183,6 @@ player_move_animation:
     .done
     ret
 
-; temporary test for taking damage
-; will implement into collision for next project
 b_button:
     ; check if B_BUTTON is held
     ld a, [JOYPAD_PRESSED_ADDRESS]
