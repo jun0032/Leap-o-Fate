@@ -118,72 +118,21 @@ game_over:
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-; REWORK
-
-; check_next_level:
-;     Copy b, [rSCX]
-;     ld a, [SPRITE_0_ADDRESS + OAMA_X]
-;     add a, b
-;     cp a, DOOR_1_X
-;     jr c, .no_win
-
-;     cp a, (DOOR_1_X + TILE_SIDE_LENGTH)
-;     jr nc, .no_win
-
-;     Copy b, [rSCY]
-;     ld a, [SPRITE_0_ADDRESS + OAMA_Y]
-;     add a, b
-;     cp a, DOOR_1_Y
-;     jr c, .no_win
-
-;     cp a, (DOOR_1_Y + TILE_SIDE_LENGTH)
-;     jr nc, .no_win
-
-;     call next_level
-
-;     .no_win
-;     ret
-
 check_door:
-    ld a, [ABSOLUTE_COORDINATE_X]
-    cp a, 128
+    ; load player current tile index and see if it is the door
+    ld a, [hl]
+    cp a, $3
     jr nz, .no_door
 
-    ld a, [ABSOLUTE_COORDINATE_Y]
-    cp a, 168
-    jr nz, .no_door
-
+    ; add x position
     AddBetter [SPRITE_0_ADDRESS + OAMA_X], 112
     AddBetter [ABSOLUTE_COORDINATE_X], 112
 
+    ; add y position
     AddBetter [SPRITE_0_ADDRESS + OAMA_Y], 24
     AddBetter [ABSOLUTE_COORDINATE_Y], 24
 
     .no_door
-    ret
-
-
-next_level:
-    ; "hide" enemy sprites
-    ld a, [SPRITE_1_ADDRESS + OAMA_FLAGS] 
-    set OAMB_PAL1, a
-    set OAMB_PRI, a
-    ld [SPRITE_1_ADDRESS + OAMA_FLAGS], a
-    ld a, [SPRITE_2_ADDRESS + OAMA_FLAGS] 
-    set OAMB_PAL1, a
-    set OAMB_PRI, a
-    ld [SPRITE_2_ADDRESS + OAMA_FLAGS], a
-
-    ; teleport to new location
-    Copy [SPRITE_0_ADDRESS + OAMA_X], LVL2_INIT_X
-    Copy [SPRITE_0_ADDRESS + OAMA_Y], LVL2_INIT_Y
-
-    Copy [rSCX], LVL2_SCR_X
-    Copy [rSCY], LVL2_SCR_Y
-
-    ; display message for next level in the middle of the window
-    ; PrintText LEVEL_2_STRING_ADDRESS, LEVELS_STRING_LOCATION
-    
     ret
 
 export init_game_states, check_start, damage_player, check_door

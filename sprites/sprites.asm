@@ -12,9 +12,6 @@ init_sprites:
     Copy [SPRITE_0_ADDRESS + OAMA_Y], 0
     Copy [SPRITE_0_ADDRESS + OAMA_TILEID], SPRITE_0_DEFAULT_ANIMATION
     Copy [SPRITE_0_ADDRESS + OAMA_FLAGS], OAMF_PAL0
-    Copy [GROUND], SPRITE_0_INIT_Y
-    Copy [JUMP_TOGGLE], $FF
-    Copy [VERTICAL_VELOCITY], 0
 
     ; set the second sprite
     Copy [SPRITE_1_ADDRESS + OAMA_Y], 0
@@ -45,11 +42,6 @@ init_sprites_pos:
 
 update_sprites:
     call update_player
-    call update_npcs
-    ret
-
-; MAKE THIS INTO ONE FUNC
-update_npcs:
     call sprite_1_ai
     call sprite_2_ai
     ret
