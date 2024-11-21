@@ -14,4 +14,10 @@
 - Finished GetPlayerTileIndex to be able to compare tile indices
 
 # 11/19
-- Reorganized collision and spike collision
+- Reorganized collision and spike collision 
+....
+
+# 11/20
+- Implemented a ghost mode
+    - While pressing [A], gravity turns off and you can    press UP to hover
+- 

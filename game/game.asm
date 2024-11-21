@@ -70,7 +70,7 @@ start:
 
 damage_player:
     ; get location index of one tile left of heart and current heart count
-    ld hl, HEART_LOCATION_ADDRESS
+    ld hl, HEART_LOCATION_ADDRESS 
     dec hl
     ld a, [HEART_COUNT]
 
@@ -128,19 +128,51 @@ game_over:
 
 check_door:
     ; load player current tile index and see if it is the door
-    ld a, [hl]
+    ld a, [PLAYER_CURR_TILE]
+
+    ; check level 1 end
     cp a, $3
-    jr nz, .no_door
+    jr nz, .no_lvl_1_end
 
-    ; add x position
-    AddBetter [SPRITE_0_ADDRESS + OAMA_X], 112
-    AddBetter [ABSOLUTE_COORDINATE_X], 112
-
-    ; add y position
+    ; move to level 2 entrance door
+    AddBetter [SPRITE_0_ADDRESS + OAMA_X], 110
+    AddBetter [ABSOLUTE_COORDINATE_X], 110
     AddBetter [SPRITE_0_ADDRESS + OAMA_Y], 24
     AddBetter [ABSOLUTE_COORDINATE_Y], 24
 
-    .no_door
+    ; switch level from 1 -> 2
+    ld hl, LVL_NUM_LOCATION
+    ld a, TWO_TILE_INDEX
+    ld [hl], a
+
+    jp .entered_door
+    .no_lvl_1_end
+
+    ; cp a, $4
+    ; jr nz, .aaa
+
+    ; cp a, $5
+    ; jr nz, .aaa
+
+    ; cp a, $6
+    ; jr nz, .aaa
+
+    cp a, $7
+    jr nz, .no_win_level_door
+
+    call get_win_level
+
+    .no_win_level_door
+
+    .entered_door
+    ret
+
+get_win_level:
+    ; load win level tilemap 
+    DisableLCD
+    UpdateTilemap WIN_LEVEL, _SCRN0
+    EnableLCD
+    halt
     ret
 
 export init_game_states, check_start, damage_player, check_door

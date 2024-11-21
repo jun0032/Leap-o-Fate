@@ -7,8 +7,7 @@ include "sprites/sprites.inc"
 section "player", rom0
 
 update_player:
-    call spike_collision
-    ; call sprite_collision
+    call check_damage
 
     ; check if [B] is pressed
     ld a, [JOYPAD_PRESSED_ADDRESS]
@@ -34,6 +33,14 @@ update_player:
     call move_left
     .left_not_pressed
 
+    ; ; check if DOWN is pressed
+    ; ld a, [JOYPAD_CURRENT_ADDRESS]
+    ; and PADF_DOWN
+    ; jr nz, .down_not_pressed
+
+    ; call move_down
+    ; .down_not_pressed
+
     ; check if BTN_A is pressed
     ld a, [JOYPAD_CURRENT_ADDRESS]
     and PADF_A
@@ -50,7 +57,7 @@ update_player:
     jr .no_gravity
 
     .a_not_pressed
-        call gravity
+        call gravity ; temp comment
         
     .no_gravity
     
@@ -70,18 +77,35 @@ gravity:
         call player_move_animation
 
     .collision
-
     ret
 
-spike_collision:
-    push af
+check_damage:
     ; check if damage cooldown is off
     ld a, [DAMAGE_COOLDOWN]
     cp a, 0
     jr nz, .in_damage_cooldown
 
-    ; [hl] is the address of the current tile in consideration
-    ld a, [hl]
+    ; check spike collision -> sets z flag when damaged
+    call spike_collision
+    jr z, .collision_checked
+
+    ; check player collision with enemy sprites
+    call sprite_collision
+    jr .collision_checked
+
+    ; decrease damage cooldown and make player blink
+    .in_damage_cooldown
+        dec a
+        ld [DAMAGE_COOLDOWN], a
+        ld a, [SPRITE_0_ADDRESS + OAMA_FLAGS]
+        xor OAMF_PAL1
+        ld [SPRITE_0_ADDRESS + OAMA_FLAGS], a
+
+    .collision_checked
+    ret
+
+spike_collision:
+    ld a, [PLAYER_CURR_TILE]
 
     ; check if the tile index is below the range of the spikes' tile index
     cp a, TILEMAP_SPIKES_START
@@ -94,20 +118,31 @@ spike_collision:
     ; damage and reset damage cooldown
     call damage_player
     Copy [DAMAGE_COOLDOWN], DMG_CD
-    jr .not_spike
-
-    .in_damage_cooldown
-        dec a
-        ld [DAMAGE_COOLDOWN], a
-        ld a, [SPRITE_0_ADDRESS + OAMA_FLAGS]
-        xor OAMF_PAL1
-        ld [SPRITE_0_ADDRESS + OAMA_FLAGS], a
+    xor a
 
     .not_spike
-    pop af
     ret
 
 sprite_collision:
+    ; check collision w/ sprite 1 aka bat
+    call get_player_center
+    CheckEnemySpriteCollision [SPRITE_1_ADDRESS + OAMA_X], [SPRITE_1_ADDRESS + OAMA_Y]
+    
+    ; check collision w/ sprite 2 aka dinosaur
+    call get_player_center
+    CheckEnemySpriteCollision [SPRITE_2_ADDRESS + OAMA_X], [SPRITE_2_ADDRESS + OAMA_Y]
+
+    .collision_checked
+    ret
+
+get_player_center:
+    ld a, [SPRITE_0_ADDRESS + OAMA_X]
+    add a, 3
+    ld b, a
+
+    ld a, [SPRITE_0_ADDRESS + OAMA_Y]
+    add a, 3
+    ld c, a
     ret
 
 move_right:
@@ -121,10 +156,10 @@ move_right:
     
     .dont_flip
         ; check right-side collision
-        CheckCollisionDirection 6, 2, 6, 7
+        CheckCollisionDirection 6, 2, 6, 7 ; temp comment
 
     .no_collision
-        ; move sprite right if went from no hold to hold
+        ; move sprite right if RIGHT is held
         AddBetter [SPRITE_0_ADDRESS + OAMA_X], SPRITE_0_SPDX
         AddBetter [ABSOLUTE_COORDINATE_X], SPRITE_0_SPDX
         call player_move_animation
@@ -142,10 +177,10 @@ move_left:
 
     .dont_flip
         ; check left-side collision
-        CheckCollisionDirection 1, 2, 1, 7
+        CheckCollisionDirection 1, 2, 1, 7 ; temp comment
 
     .no_collision
-        ; move sprite left if went from no hold to hold
+        ; move sprite left if LEFT is held
         AddBetter [SPRITE_0_ADDRESS + OAMA_X], -SPRITE_0_SPDX
         AddBetter [ABSOLUTE_COORDINATE_X], -SPRITE_0_SPDX
         call player_move_animation
@@ -155,16 +190,25 @@ move_left:
 
 move_up:
     ; check top-side collision
-    CheckCollisionDirection 2, 0, 5, 0
+    CheckCollisionDirection 2, 0, 5, 0 ; temp comment
 
     .no_collision
-        ; move sprite up if went from no hold to hold
+        ; move sprite up if UP is held
         AddBetter [SPRITE_0_ADDRESS + OAMA_Y], -1
         AddBetter [ABSOLUTE_COORDINATE_Y], -1
         call player_move_animation
 
     .collision
     ret
+
+; TEMP FUNC;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+move_down:
+    ; move sprite up if DOWN is held
+    AddBetter [SPRITE_0_ADDRESS + OAMA_Y], 1
+    AddBetter [ABSOLUTE_COORDINATE_Y], 1
+    call player_move_animation
+    ret
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 player_move_animation:
     ld a, [GAME_COUNTER]
@@ -182,18 +226,6 @@ player_move_animation:
         Copy [SPRITE_0_ADDRESS + OAMA_TILEID], SPRITE_0_MOVE_ANIMATION
 
     .done
-    ret
-
-b_button:
-    ; check if B_BUTTON is held
-    ld a, [JOYPAD_PRESSED_ADDRESS]
-    and PADF_B
-    jr nz, .b_not_pressed
-
-    ; lose heart when B_BUTTON is held
-    call damage_player
-
-    .b_not_pressed
     ret
 
 export update_player

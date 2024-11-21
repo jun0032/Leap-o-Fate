@@ -55,6 +55,9 @@ macro InitOAM
         jr nz, .init_oam\@
 endm
 
+; calculates the player's tile index and puts it into (a) and [PLAYER_CURR_TILE]
+; \1: player x-coord offset    \2: player y-coord offset
+; if \1 and \2 are 0 -> gets the tile index of the top left corner of the player
 macro GetPlayerTileIndex
     ; divide absolute x coordinate by 8 to get player tilemap column
     ld a, [ABSOLUTE_COORDINATE_X]
@@ -93,32 +96,12 @@ macro GetPlayerTileIndex
     ld [PLAYER_CURR_TILE], a
 endm
 
-; not currently using this DELETE THIS
-; macro UpdateCurrTile
-;     GetPlayerTileIndex \1, \2
-;     ld a, [hl]
-;     ld [PLAYER_CURR_TILE], a
-; endm
-
-; check if player is on a certain type of block
-; NOTE: requires labels .no_collision and .collision
-; params:
-; \1 tileid of first tile of target block type
-; \2 tileid of tile after last tile of target block type
-; function: jump to .collision if player is on target block type
-; jump to .no_collision otherwise
-; macro CheckBlockCollision
-;     cp a, TILEMAP_SOLID_START
-;     jp c, .no_collision
-
-;     cp a, TILEMAP_SOLID_END
-;     jp c, .collision
-; endm
-
+; checks two corners 
+; first corner: x: \1 and y: \2
+; second corner: x: \1 and y: \2
 macro CheckCollisionDirection
     ; check first corner
     GetPlayerTileIndex \1, \2
-    ; call spike_collision
 
     cp a, TILEMAP_SOLID_START 
     jr c, .second_check
@@ -129,13 +112,43 @@ macro CheckCollisionDirection
     .second_check
         ; check second corner
         GetPlayerTileIndex \3, \4
-        ; call spike_collision
 
         cp a, TILEMAP_SOLID_START
         jr c, .no_collision
 
         cp a, TILEMAP_SOLID_END + 1
         jr c, .collision
+endm
+
+; checks if player is colliding with an enemy sprite
+; \1: enemy sprite x-pos       \2: enemy sprite y-pos
+macro CheckEnemySpriteCollision
+    ; check left bounding box of enemy sprite
+    ld a, \1
+    cp a, b
+    jr nc, .no_sprite_collision\@
+
+    ; check right bounding box of enemy sprite
+    add a, 7
+    cp a, b
+    jr c, .no_sprite_collision\@
+
+    ; check top bounding box of enemy sprite
+    ld a, \2
+    cp a, c
+    jr nc, .no_sprite_collision\@
+
+    ; check bottom bounding box of enemy sprite
+    add a, 7
+    cp a, c
+    jr c, .no_sprite_collision\@
+
+    ; damage and reset damage cooldown
+    call damage_player
+    Copy [DAMAGE_COOLDOWN], DMG_CD
+    jr .collision_checked
+
+    .no_sprite_collision\@
 endm
 
 endc
