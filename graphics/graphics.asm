@@ -128,8 +128,12 @@ export init_graphics, update_graphics
 
 section "graphics_data", rom0[GRAPHICS_DATA_ADDRESS_START]
 incbin "tiles/tileset.chr"
-incbin "tiles/game_background.tlm"
-incbin "tiles/start_screen.tlm"
+
+GAME_BACKGROUND:
+    incbin "tiles/game_background.tlm"
+
+START_SCREEN:
+    incbin "tiles/start_screen.tlm"
 
 NEXT_LEVEL_WINDOW:
     incbin "tiles/next_level_window.tlm"
@@ -140,4 +144,4 @@ GAME_OVER_WINDOW:
 WIN_LEVEL:
     incbin "tiles/win_level.tlm"
 
-export NEXT_LEVEL_WINDOW, GAME_OVER_WINDOW, WIN_LEVEL
+export GAME_BACKGROUND, START_SCREEN, NEXT_LEVEL_WINDOW, GAME_OVER_WINDOW, WIN_LEVEL

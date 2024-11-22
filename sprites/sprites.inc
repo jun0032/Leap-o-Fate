@@ -13,11 +13,13 @@ def SPRITE_0_INIT_Y                 equ (40)
 
 def SPRITE_1_INIT_X                 equ (80)
 def SPRITE_1_INIT_Y                 equ (104)
-def SPRITE_1_END_X                  equ (144)
+def SPRITE_1_END_X                  equ (160)
+def SPRITE_1_WIN_LVL_Y              equ (104)
 
 def SPRITE_2_INIT_X                 equ (128)
 def SPRITE_2_INIT_Y                 equ (80)
 def SPRITE_2_END_X                  equ (184)
+def SPRITE_2_WIN_LVL_Y              equ (120)
 
 ; player attributes
 def SPRITE_0_DEFAULT_ANIMATION      equ (8)

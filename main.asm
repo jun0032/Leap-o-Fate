@@ -1,7 +1,7 @@
-; CS-240 Project 5: First Game Draft
+; CS-240 Project 5: Final Game Draft
 ; @file main.asm
 ; @author Pan Pov and Jun Seo
-; @date November 6, 2024
+; @date November 20, 2024
 
 ; CITE: 8x8 1bit Dungeon Tilemap by PixelHole (https://pixelhole.itch.io/8x8dungeontilemap)
 ; DESC: We used this free tileset to create our tilemap and window.
@@ -52,7 +52,6 @@ main:
         ; update only when game has started
         call update_graphics
         call update_sprites
-        ; call check_next_level
 
         .skip
         jp .loop

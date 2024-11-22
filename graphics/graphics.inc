@@ -33,7 +33,7 @@ def WINDOW_BOTTOM_EDGE              equ (136)
 def WINDOW_LEFT_SCROLL              equ (56)
 def WINDOW_RIGHT_SCROLL             equ (120)
 def WINDOW_TOP_SCROLL               equ (48)
-def WINDOW_BOTTOM_SCROLL            equ (120)
+def WINDOW_BOTTOM_SCROLL            equ (104)
 
 ; animation constants
 def START_PULL_DOWN_SPEED           equ (8)

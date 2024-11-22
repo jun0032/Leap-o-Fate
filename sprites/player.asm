@@ -33,18 +33,23 @@ update_player:
     call move_left
     .left_not_pressed
 
-    ; ; check if DOWN is pressed
-    ; ld a, [JOYPAD_CURRENT_ADDRESS]
-    ; and PADF_DOWN
-    ; jr nz, .down_not_pressed
-
-    ; call move_down
-    ; .down_not_pressed
-
     ; check if BTN_A is pressed
     ld a, [JOYPAD_CURRENT_ADDRESS]
     and PADF_A
     jr nz, .a_not_pressed
+
+    ; check if player has mana points
+    ld a, [MANA_POINTS]
+    cp a, 0
+    jr z, .a_not_pressed
+
+    ; if player is on ladder, don't use mana
+    ld a, [PLAYER_CURR_TILE]
+    cp a, LADDER_TILE_INDEX
+    jr z, .climb_ladder
+
+    call use_mana
+    .climb_ladder
 
     ; check if UP is pressed
     ld a, [JOYPAD_CURRENT_ADDRESS]
@@ -54,13 +59,24 @@ update_player:
     call move_up
     .up_not_pressed
 
+    ; no gravity and mana regen while hovering
     jr .no_gravity
 
     .a_not_pressed
-        call gravity ; temp comment
+        call gravity
+        call regen_mana
         
     .no_gravity
-    
+
+    ; if player on ladder, regen mana
+    ld a, [PLAYER_CURR_TILE]
+    cp a, LADDER_TILE_INDEX
+    jr nz, .no_ladder_mana_regen
+
+    call regen_mana
+    .no_ladder_mana_regen
+
+    call mana_cooldown
     GetPlayerTileIndex 3, 3
 
     .done

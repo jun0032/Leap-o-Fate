@@ -11,7 +11,8 @@ init_game_states:
     Copy [GAME_COUNTER], 0
     Copy [GAME_STATE], $FF
     Copy [DAMAGE_COOLDOWN], 0
-    Copy [MANA_REGEN], 0
+    Copy [MANA_USE_COOLDOWN], 0
+    Copy [MANA_REGEN], MANA_REGEN_TIME
     ret
 
 check_start:
@@ -71,7 +72,6 @@ start:
 damage_player:
     ; get location index of one tile left of heart and current heart count
     ld hl, HEART_LOCATION_ADDRESS 
-    dec hl
     ld a, [HEART_COUNT]
 
     ; get location index of the heart to erase
@@ -95,10 +95,70 @@ damage_player:
         ld [HEART_COUNT], a
     ret
 
+; basically the same thing as damage_player except with mana points
 use_mana:
+    ld a, [MANA_USE_COOLDOWN]
+    cp a, 0
+    jr nz, .no_use
     
-    
+    ld hl, MANA_LOCATION_ADDRESS
+    ld a, [MANA_POINTS]
 
+    .find_curr_point
+        inc hl
+        dec a
+        jr nz, .find_curr_point
+    
+    ld a, BLANK_TILE_INDEX
+    ld [hl], a
+
+    ld a, [MANA_POINTS]
+    dec a
+    ld [MANA_POINTS], a
+    Copy [MANA_USE_COOLDOWN], MANA_USE_COOLDOWN_TIME
+
+    .no_use
+    ret
+
+mana_cooldown:
+    ld a, [MANA_USE_COOLDOWN]
+    cp a, 0
+    jr z, .no_cooldown
+
+    dec a
+    ld [MANA_USE_COOLDOWN], a
+
+    .no_cooldown
+    ret
+
+regen_mana:
+    ld a, [MANA_POINTS]
+    cp a, MAX_MANA_POINTS
+    jr nc, .no_regen
+
+    ld a, [MANA_REGEN]
+    cp a, 0
+    jr nz, .dec_regen_time
+
+    ld a, [MANA_POINTS]
+    inc a
+    ld [MANA_POINTS], a
+
+    ld b, 0
+    ld c, a
+    ld hl, MANA_LOCATION_ADDRESS
+    add hl, bc
+    ld [hl], MANA_TILE_INDEX
+
+    Copy [MANA_REGEN], MANA_REGEN_TIME
+
+    .dec_regen_time
+
+    dec a
+    ld [MANA_REGEN], a
+
+    .no_regen
+    
     ret
 
 game_over:
@@ -124,21 +184,16 @@ game_over:
 
     ret
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
 check_door:
     ; load player current tile index and see if it is the door
     ld a, [PLAYER_CURR_TILE]
 
     ; check level 1 end
-    cp a, $3
+    cp a, LVL_2_DOOR_INDEX
     jr nz, .no_lvl_1_end
 
     ; move to level 2 entrance door
-    AddBetter [SPRITE_0_ADDRESS + OAMA_X], 110
-    AddBetter [ABSOLUTE_COORDINATE_X], 110
-    AddBetter [SPRITE_0_ADDRESS + OAMA_Y], 24
-    AddBetter [ABSOLUTE_COORDINATE_Y], 24
+    MovePlayer LVL_2_DOOR_X_OFFSET, LVL_2_DOOR_Y_OFFSET
 
     ; switch level from 1 -> 2
     ld hl, LVL_NUM_LOCATION
@@ -148,26 +203,56 @@ check_door:
     jp .entered_door
     .no_lvl_1_end
 
-    ; cp a, $4
-    ; jr nz, .aaa
+    ; door 2 check
+    cp a, DOOR_2_INDEX
+    jr nz, .no_door_2
 
-    ; cp a, $5
-    ; jr nz, .aaa
+    MovePlayer DOOR_2_X_OFFSET, DOOR_2_Y_OFFSET
+    jr .entered_door
+    .no_door_2
 
-    ; cp a, $6
-    ; jr nz, .aaa
+    ; door 3 check
+    cp a, DOOR_3_INDEX
+    jr nz, .no_door_3
 
-    cp a, $7
+    MovePlayer DOOR_3_X_OFFSET, DOOR_3_Y_OFFSET
+    jr .entered_door
+    .no_door_3
+
+    ; door 4 check
+    cp a, DOOR_4_INDEX
+    jr nz, .not_door_4
+
+    MovePlayer DOOR_4_X_OFFSET, DOOR_4_Y_OFFSET
+    jr .entered_door
+    .not_door_4
+
+    ; check door to win level
+    cp a, WIN_DOOR_INDEX
     jr nz, .no_win_level_door
 
     call get_win_level
-
+    jr .entered_door
     .no_win_level_door
+
+    ; check door to finish and restart game
+    cp a, FINISH_GAME_DOOR_INDEX
+    jr nz, .no_finish_game_door
+
+    call finish_game    
+    .no_finish_game_door
 
     .entered_door
     ret
 
 get_win_level:
+    ; move sprites
+    Copy [SPRITE_1_ADDRESS + OAMA_Y], SPRITE_1_WIN_LVL_Y
+    Copy [SPRITE_2_ADDRESS + OAMA_Y], SPRITE_2_WIN_LVL_Y
+    
+    ; move player to door
+    MovePlayer SPRITE_0_WIN_LVL_X_OFFSET, SPRITE_0_WIN_LVL_Y_OFFSET
+
     ; load win level tilemap 
     DisableLCD
     UpdateTilemap WIN_LEVEL, _SCRN0
@@ -175,4 +260,27 @@ get_win_level:
     halt
     ret
 
-export init_game_states, check_start, damage_player, check_door
+finish_game:
+    ; reset window and background
+    xor a
+    ld [rWY], a
+    ld [rSCX], a
+    ld [rSCY], a
+
+    ; re-initializes game
+    call init_sprites
+
+    ; set starting screen on
+    ld a, [GAME_STATE]
+    xor GAMEF_START_SCREEN
+    ld [GAME_STATE], a
+
+    ; load start screen and game background
+    DisableLCD
+    UpdateTilemap START_SCREEN, _SCRN1
+    UpdateTilemap GAME_BACKGROUND, _SCRN0
+    EnableLCD
+    halt
+    ret
+
+export init_game_states, check_start, damage_player, check_door, use_mana, mana_cooldown, regen_mana
