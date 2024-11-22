@@ -36,7 +36,6 @@ init_graphics:
     xor a
     ld [rSCX], a
     ld [rSCY], a
-
     ret
 
 update_graphics:
@@ -60,7 +59,6 @@ scroll_horizontal:
     AddBetter [SPRITE_0_ADDRESS + OAMA_X], WINDOW_SCROLL_SPEED
     AddBetter [SPRITE_1_ADDRESS + OAMA_X], WINDOW_SCROLL_SPEED
     AddBetter [SPRITE_2_ADDRESS + OAMA_X], WINDOW_SCROLL_SPEED
-    
     jr .scroll_done
 
     ; check if player is within the rightmost 48 pixels
@@ -79,7 +77,6 @@ scroll_horizontal:
     AddBetter [SPRITE_0_ADDRESS + OAMA_X], -WINDOW_SCROLL_SPEED
     AddBetter [SPRITE_1_ADDRESS + OAMA_X], -WINDOW_SCROLL_SPEED
     AddBetter [SPRITE_2_ADDRESS + OAMA_X], -WINDOW_SCROLL_SPEED
-
     .scroll_done
     ret
 
@@ -99,7 +96,6 @@ scroll_vertical:
     AddBetter [SPRITE_0_ADDRESS + OAMA_Y], WINDOW_SCROLL_SPEED
     AddBetter [SPRITE_1_ADDRESS + OAMA_Y], WINDOW_SCROLL_SPEED
     AddBetter [SPRITE_2_ADDRESS + OAMA_Y], WINDOW_SCROLL_SPEED
-
     jr .scroll_done
 
     ; check if player is within the bottommost 40 pixels (including bottom window HUD)
@@ -118,7 +114,6 @@ scroll_vertical:
     AddBetter [SPRITE_0_ADDRESS + OAMA_Y], -WINDOW_SCROLL_SPEED
     AddBetter [SPRITE_1_ADDRESS + OAMA_Y], -WINDOW_SCROLL_SPEED
     AddBetter [SPRITE_2_ADDRESS + OAMA_Y], -WINDOW_SCROLL_SPEED
-
     .scroll_done
     ret
 

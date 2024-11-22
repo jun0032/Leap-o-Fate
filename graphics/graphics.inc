@@ -27,8 +27,8 @@ def WINDOW_RIGHT_EDGE               equ (96)
 def WINDOW_TOP_EDGE                 equ (0)
 def WINDOW_BOTTOM_EDGE              equ (136)
 
-; if player's x-value < the scroll value (for left and top)
-; or player's x-value > the scroll value (for right and bottom)
+; if player's x/y-value < the scroll value (for left and top, respectively)
+; or player's x/y-value > the scroll value (for right and bottom, respectively)
 ; then scroll in that direction
 def WINDOW_LEFT_SCROLL              equ (56)
 def WINDOW_RIGHT_SCROLL             equ (120)
@@ -38,10 +38,6 @@ def WINDOW_BOTTOM_SCROLL            equ (104)
 ; animation constants
 def START_PULL_DOWN_SPEED           equ (8)
 def WINDOW_SCROLL_SPEED             equ (1)
-
-; for printing text
-def ASCII_OFFSET                    equ ($20)
-def NULL                            equ (0)
 
 ; load the graphics data from ROM to VRAM
 macro LoadGraphicsDataIntoVRAM
@@ -85,28 +81,6 @@ endm
 macro EnableLCD
     ld a, LCDCF_ON | LCDCF_WIN9C00 | LCDCF_WINON | LCDCF_BG8800 | LCDCF_BG9800 | LCDCF_OBJON | LCDCF_OBJ8 | LCDCF_BGON
     ld [rLCDC], a
-endm
-
-; prints text, \1: address of text and \2: address of location to print
-macro PrintText
-    ; load address of start of text in ROM to (de)
-    ; and load the value in that address to (a)
-    ld de, \1
-    ld a, [de]
-
-    ; load address in the tilemap to (hl)
-    ld hl, \2
-
-    .print_next_character\@
-        ; increment current character and location to write
-        add a, ASCII_OFFSET
-        ld [hli], a
-        inc de
-        ld a, [de]
-
-        ; repeat until null
-        cp a, NULL
-        jp nz, .print_next_character\@
 endm
    
 endc
