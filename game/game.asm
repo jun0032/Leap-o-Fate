@@ -12,7 +12,7 @@ init_game_states:
     Copy [GAME_STATE], $FF
     Copy [DAMAGE_COOLDOWN], 0
     Copy [MANA_USE_COOLDOWN], 0
-    Copy [MANA_REGEN], MANA_REGEN_TIME
+    Copy [MANA_REGEN], MANA_REGEN_CD
     ret
 
 check_start:
@@ -90,17 +90,17 @@ damage_player:
     jr nz, .not_game_over
 
     call game_over
-
     .not_game_over
         ld [HEART_COUNT], a
     ret
 
-; basically the same thing as damage_player except with mana points
 use_mana:
+    ; if mana use is on cooldown, skip
     ld a, [MANA_USE_COOLDOWN]
     cp a, 0
     jr nz, .no_use
     
+    ; get tile left of first mana point in window
     ld hl, MANA_LOCATION_ADDRESS
     ld a, [MANA_POINTS]
 
@@ -109,9 +109,11 @@ use_mana:
         dec a
         jr nz, .find_curr_point
     
+    ; delete the point
     ld a, BLANK_TILE_INDEX
     ld [hl], a
 
+    ; decrease mana points and put mana use on cooldown
     ld a, [MANA_POINTS]
     dec a
     ld [MANA_POINTS], a
@@ -121,6 +123,7 @@ use_mana:
     ret
 
 mana_cooldown:
+    ; only decrease cooldown if on cooldown
     ld a, [MANA_USE_COOLDOWN]
     cp a, 0
     jr z, .no_cooldown
@@ -132,33 +135,36 @@ mana_cooldown:
     ret
 
 regen_mana:
+    ; only regen mana points if less than MAX_MANA_POINTS
     ld a, [MANA_POINTS]
     cp a, MAX_MANA_POINTS
     jr nc, .no_regen
 
+    ; only decrease cooldown if on cooldown
     ld a, [MANA_REGEN]
     cp a, 0
-    jr nz, .dec_regen_time
+    jr nz, .dec_regen_cd
 
+    ; increase mana points
     ld a, [MANA_POINTS]
     inc a
     ld [MANA_POINTS], a
 
+    ; display regenerated mana points
     ld b, 0
     ld c, a
     ld hl, MANA_LOCATION_ADDRESS
     add hl, bc
     ld [hl], MANA_TILE_INDEX
 
-    Copy [MANA_REGEN], MANA_REGEN_TIME
+    ; put mana regen on cooldown
+    Copy [MANA_REGEN], MANA_REGEN_CD
 
-    .dec_regen_time
-
-    dec a
-    ld [MANA_REGEN], a
+    .dec_regen_cd
+        dec a
+        ld [MANA_REGEN], a
 
     .no_regen
-    
     ret
 
 game_over:
@@ -181,7 +187,6 @@ game_over:
     UpdateTilemap GAME_OVER_WINDOW, _SCRN1
     EnableLCD
     halt
-
     ret
 
 check_door:

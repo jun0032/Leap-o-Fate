@@ -33,7 +33,7 @@ def TILEMAP_SOLID_END               equ ($AC)
 def GRAVITY                       equ (1)
 
 ; hearts
-def MAX_HEARTS                    equ ($0004)
+def MAX_HEARTS                    equ (4)
 def HEART_TILE_INDEX              equ ($0036)
 def BROKEN_HEART_TILE_INDEX       equ ($0037)
 def HEART_LOCATION_ADDRESS        equ ($9C20)
@@ -44,7 +44,7 @@ def DMG_CD                        equ ($18)
 def MANA_TILE_INDEX               equ ($004A)
 def MAX_MANA_POINTS               equ (6)
 def MANA_USE_COOLDOWN_TIME        equ (10)
-def MANA_REGEN_TIME               equ (16)
+def MANA_REGEN_CD                 equ (16)
 def MANA_LOCATION_ADDRESS         equ ($9C26)
 
 def LADDER_TILE_INDEX             equ ($1)
@@ -73,8 +73,8 @@ def DOOR_4_Y_OFFSET               equ (48)
 def WIN_DOOR_INDEX                equ ($7)
 
 def FINISH_GAME_DOOR_INDEX        equ ($8)
-def SPRITE_0_WIN_LVL_X_OFFSET       equ (-64)
-def SPRITE_0_WIN_LVL_Y_OFFSET       equ (8)
+def SPRITE_0_WIN_LVL_X_OFFSET     equ (-64)
+def SPRITE_0_WIN_LVL_Y_OFFSET     equ (8)
 
 ; Move player's x by \1 and y by \2
 macro MovePlayer
