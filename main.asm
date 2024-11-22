@@ -19,12 +19,12 @@ include "sprites/sprites.inc"
 section "header", rom0[$0100]
 entrypoint:
     di
-    jp main
+    jr main
     ds ($0150 - @), 0
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-section "main", rom0
+section "main", rom0[$0150]
 main:
     ; initialize everything
     DisableLCD
