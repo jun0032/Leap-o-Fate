@@ -7,6 +7,9 @@ include "sprites/sprites.inc"
 
 section "game", rom0
 
+; CheckDoorTable:
+; dw DOOR_0
+
 init_game_states:
     Copy [GAME_COUNTER], 0
     Copy [GAME_STATE], $FF
@@ -197,10 +200,8 @@ check_door:
     cp a, LVL_2_DOOR_INDEX
     jr nz, .no_lvl_1_end
 
-    ; move to level 2 entrance door
+    ; move to level 2 entrance door and switch level from 1 -> 2
     MovePlayer LVL_2_DOOR_X_OFFSET, LVL_2_DOOR_Y_OFFSET
-
-    ; switch level from 1 -> 2
     ld hl, LVL_NUM_LOCATION
     ld a, TWO_TILE_INDEX
     ld [hl], a

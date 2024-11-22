@@ -77,19 +77,21 @@ update_player:
     .no_ladder_mana_regen
 
     call mana_cooldown
-    GetPlayerTileIndex 3, 3
+    
+    ; get center of player
+    GetPlayerTileIndex PLAYER_CENTER_X, PLAYER_CENTER_Y
 
     .done
     ret
 
 gravity:
     ; check bottom-side collision
-    CheckCollisionDirection 2, 8, 5, 8
+    CheckCollisionDirection UD_LEFT_HITBOX, UD_BOTTOM_HITBOX, UD_RIGHT_HITBOX, UD_BOTTOM_HITBOX
 
     .no_collision
         ; move sprite up if went from no hold to hold
-        AddBetter [SPRITE_0_ADDRESS + OAMA_Y], 1
-        AddBetter [ABSOLUTE_COORDINATE_Y], 1
+        AddBetter [SPRITE_0_ADDRESS + OAMA_Y], GRAVITY_SPD_Y
+        AddBetter [ABSOLUTE_COORDINATE_Y], GRAVITY_SPD_Y
         call player_move_animation
 
     .collision
@@ -140,25 +142,27 @@ spike_collision:
     ret
 
 sprite_collision:
-    ; check collision w/ sprite 1 aka bat
-    call get_player_center
+    ; get player's center
+    ld a, [SPRITE_0_ADDRESS + OAMA_X]
+    add a, PLAYER_CENTER_X
+    ld b, a
+    ld a, [SPRITE_0_ADDRESS + OAMA_Y]
+    add a, PLAYER_CENTER_Y
+    ld c, a
+    ld d, b
+    ld e, c
+
+    ; check collision w/ sprite 1 (bat) against player's center
     CheckEnemySpriteCollision [SPRITE_1_ADDRESS + OAMA_X], [SPRITE_1_ADDRESS + OAMA_Y]
     
-    ; check collision w/ sprite 2 aka dinosaur
-    call get_player_center
+    ; get player's center
+    ld b, d
+    ld c, e
+
+    ; check collision w/ sprite 2 (dinosaur) against player's center
     CheckEnemySpriteCollision [SPRITE_2_ADDRESS + OAMA_X], [SPRITE_2_ADDRESS + OAMA_Y]
 
     .collision_checked
-    ret
-
-get_player_center:
-    ld a, [SPRITE_0_ADDRESS + OAMA_X]
-    add a, 3
-    ld b, a
-
-    ld a, [SPRITE_0_ADDRESS + OAMA_Y]
-    add a, 3
-    ld c, a
     ret
 
 move_right:
@@ -172,7 +176,7 @@ move_right:
     
     .dont_flip
         ; check right-side collision
-        CheckCollisionDirection 6, 2, 6, 7 ; temp comment
+        CheckCollisionDirection LR_RIGHT_HITBOX, LR_TOP_HITBOX, LR_RIGHT_HITBOX, LR_BOTTOM_HITBOX
 
     .no_collision
         ; move sprite right if RIGHT is held
@@ -181,9 +185,11 @@ move_right:
         call player_move_animation
 
     .collision
+    .right_not_pressed
     ret
 
 move_left:
+    ; flip sprite in x-direction if sprite is facing opposite direction
     ld a, [SPRITE_0_ADDRESS + OAMA_FLAGS]
     bit OAMB_XFLIP, a
     jr nz, .dont_flip
@@ -193,7 +199,7 @@ move_left:
 
     .dont_flip
         ; check left-side collision
-        CheckCollisionDirection 1, 2, 1, 7 ; temp comment
+        CheckCollisionDirection LR_LEFT_HITBOX, LR_TOP_HITBOX, LR_LEFT_HITBOX, LR_BOTTOM_HITBOX
 
     .no_collision
         ; move sprite left if LEFT is held
@@ -202,29 +208,21 @@ move_left:
         call player_move_animation
 
     .collision
+    .left_not_pressed
     ret
 
 move_up:
     ; check top-side collision
-    CheckCollisionDirection 2, 0, 5, 0 ; temp comment
-
+    CheckCollisionDirection UD_LEFT_HITBOX, UD_TOP_HITBOX, UD_RIGHT_HITBOX, UD_TOP_HITBOX
+    
     .no_collision
         ; move sprite up if UP is held
-        AddBetter [SPRITE_0_ADDRESS + OAMA_Y], -1
-        AddBetter [ABSOLUTE_COORDINATE_Y], -1
+        AddBetter [SPRITE_0_ADDRESS + OAMA_Y], SPRITE_0_UP_SPD
+        AddBetter [ABSOLUTE_COORDINATE_Y], SPRITE_0_UP_SPD
         call player_move_animation
 
     .collision
     ret
-
-; TEMP FUNC;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-move_down:
-    ; move sprite up if DOWN is held
-    AddBetter [SPRITE_0_ADDRESS + OAMA_Y], 1
-    AddBetter [ABSOLUTE_COORDINATE_Y], 1
-    call player_move_animation
-    ret
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 player_move_animation:
     ld a, [GAME_COUNTER]

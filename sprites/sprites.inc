@@ -25,7 +25,26 @@ def SPRITE_2_WIN_LVL_Y              equ (120)
 def SPRITE_0_DEFAULT_ANIMATION      equ (8)
 def SPRITE_0_MOVE_ANIMATION         equ (10)
 def SPRITE_0_SPDX                   equ (1)
+def SPRITE_0_UP_SPD                 equ (-1)
+def GRAVITY_SPD_Y                   equ (1)
 def SPRITE_0_FREQ                   equ (3)
+
+; key positions for player collision checks
+def PLAYER_CENTER_X                 equ (3)
+def PLAYER_CENTER_Y                 equ (3)
+
+; for moving left and right
+def LR_LEFT_HITBOX                  equ (1)
+def LR_RIGHT_HITBOX                 equ (6)
+def LR_TOP_HITBOX                   equ (2)
+def LR_BOTTOM_HITBOX                equ (7)
+
+; for moving up and down
+def UD_LEFT_HITBOX                  equ (2)
+def UD_RIGHT_HITBOX                 equ (5)
+def UD_TOP_HITBOX                   equ (0)
+def UD_BOTTOM_HITBOX                equ (8)
+
 
 ; absolute coordinates
 RSSET _RAM + 32
