@@ -1,3 +1,8 @@
+; CS-240 Project 5: Final Game Draft
+; @file player.asm
+; @author Pan Pov and Jun Seo
+; @date November 20, 2024
+
 include "game/game.inc"
 include "joypad/joypad.inc"
 include "sprites/sprites.inc"

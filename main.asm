@@ -1,4 +1,4 @@
-; CS-240 Project 5: Final Game Draft
+; CS-240 Project 5: Final Game
 ; @file main.asm
 ; @author Pan Pov and Jun Seo
 ; @date November 20, 2024
