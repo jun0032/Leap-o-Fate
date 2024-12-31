@@ -22,13 +22,13 @@ def GAMEB_START_SCREEN            equ ($0000)
 def COUNTER_SPEED                 equ (%00000001)
 
 ; tilemap top left corner
-def TOP_LEFT_CORNER_X               equ (8)
-def TOP_LEFT_CORNER_Y               equ (16)
+def TOP_LEFT_CORNER_X             equ (8)
+def TOP_LEFT_CORNER_Y             equ (16)
 
-def TILEMAP_SPIKES_START            equ ($20)
-def TILEMAP_SPIKES_END              equ ($27)
-def TILEMAP_SOLID_START             equ ($80)
-def TILEMAP_SOLID_END               equ ($AC)
+def TILEMAP_SPIKES_START          equ ($20)
+def TILEMAP_SPIKES_END            equ ($27)
+def TILEMAP_SOLID_START           equ ($80)
+def TILEMAP_SOLID_END             equ ($AC)
 
 def GRAVITY                       equ (1)
 
@@ -50,7 +50,9 @@ def MANA_LOCATION_ADDRESS         equ ($9C26)
 def LADDER_TILE_INDEX             equ ($1)
 
 ; level display
+def ONE_TILE_INDEX                equ ($51)
 def TWO_TILE_INDEX                equ ($52)
+def THREE_TILE_INDEX              equ ($53)
 def LVL_NUM_LOCATION              equ ($9C32)
 
 ; doors

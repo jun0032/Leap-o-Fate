@@ -12,9 +12,6 @@ include "sprites/sprites.inc"
 
 section "game", rom0
 
-; CheckDoorTable:
-; dw DOOR_0
-
 init_game_states:
     Copy [GAME_COUNTER], 0
     Copy [GAME_STATE], $FF
@@ -190,8 +187,18 @@ game_over:
     xor GAMEF_START_SCREEN
     ld [GAME_STATE], a
 
-    ; load game over window
     DisableLCD
+
+    ; check if level 3
+    ld a, [LVL_NUM_LOCATION]
+    cp a, THREE_TILE_INDEX
+    jp nz, .no_background_reload
+
+    UpdateTilemap GAME_BACKGROUND, _SCRN0
+
+    .no_background_reload
+
+    ; load game over window
     UpdateTilemap GAME_OVER_WINDOW, _SCRN1
     EnableLCD
     halt
@@ -219,6 +226,9 @@ check_door:
     jr nz, .no_door_2
 
     MovePlayer DOOR_2_X_OFFSET, DOOR_2_Y_OFFSET
+    ld hl, LVL_NUM_LOCATION
+    ld a, ONE_TILE_INDEX
+    ld [hl], a
     jr .entered_door
     .no_door_2
 
@@ -227,6 +237,9 @@ check_door:
     jr nz, .no_door_3
 
     MovePlayer DOOR_3_X_OFFSET, DOOR_3_Y_OFFSET
+    ld hl, LVL_NUM_LOCATION
+    ld a, ONE_TILE_INDEX
+    ld [hl], a
     jr .entered_door
     .no_door_3
 
@@ -269,6 +282,11 @@ get_win_level:
     UpdateTilemap WIN_LEVEL, _SCRN0
     EnableLCD
     halt
+
+    ; update level to 3
+    ld hl, LVL_NUM_LOCATION
+    ld a, THREE_TILE_INDEX
+    ld [hl], a
     ret
 
 finish_game:
